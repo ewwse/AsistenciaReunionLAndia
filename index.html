@@ -1,109 +1,6 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistema de Asistencia</title>
-
-<style>
-body{
-    margin:0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg,#1e3c72,#2a5298);
-    color:white;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-}
-.container{
-    background:white;
-    color:#333;
-    padding:25px;
-    border-radius:15px;
-    width:95%;
-    max-width:600px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.3);
-}
-h2{
-    text-align:center;
-    margin-bottom:20px;
-}
-input,select,button{
-    width:100%;
-    padding:10px;
-    margin:6px 0;
-    border-radius:8px;
-    border:1px solid #ccc;
-    font-size:14px;
-}
-button{
-    background:#2a5298;
-    color:white;
-    border:none;
-    cursor:pointer;
-    transition:0.3s;
-}
-button:hover{
-    background:#1e3c72;
-}
-.table-container{
-    max-height:250px;
-    overflow-y:auto;
-    margin-top:15px;
-}
-table{
-    width:100%;
-    border-collapse:collapse;
-    font-size:13px;
-}
-th,td{
-    border:1px solid #ccc;
-    padding:6px;
-    text-align:center;
-}
-th{
-    background:#2a5298;
-    color:white;
-}
-@media(max-width:500px){
-    .container{
-        padding:15px;
-    }
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-    <h2>Control de Asistencia</h2>
-
-    <input type="date" id="fecha">
-    <select id="tipo">
-        <option value="Presencial">Presencial</option>
-        <option value="Virtual">Virtual</option>
-    </select>
-
-    <button onclick="guardar()">Guardar Asistencia</button>
-
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Tipo</th>
-                </tr>
-            </thead>
-            <tbody id="tabla"></tbody>
-        </table>
-    </div>
-</div>
-
-<!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBs3r8RFztg6NxUbkZmaSag2CxfF7phvG8",
@@ -117,39 +14,96 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const tabla = document.getElementById("tabla");
-const fechaInput = document.getElementById("fecha");
+const USER="Landia";
+const PASS="Lapina1115";
 
-fechaInput.valueAsDate = new Date();
+const getFecha=()=> new Date().toISOString().split("T")[0];
 
 window.guardar = async function(){
-    const fecha = fechaInput.value;
-    const tipo = document.getElementById("tipo").value;
+    const v=document.getElementById("virtual").value;
+    const p=document.getElementById("presencial").value;
 
-    if(!fecha) return alert("Selecciona una fecha");
+    if(!v || !p) return alert("Completa ambos campos");
 
-    await addDoc(collection(db,"asistencias"),{
-        fecha: fecha,
-        tipo: tipo,
-        timestamp: Date.now()
+    const fecha = getFecha();
+
+    const registro = {virtual:+v,presencial:+p};
+
+    // Guardar en Firebase
+    await setDoc(doc(db,"asistencia",fecha), registro);
+
+    // Respaldo local
+    const datos=JSON.parse(localStorage.getItem("asistencia"))||{};
+    datos[fecha]=registro;
+    localStorage.setItem("asistencia",JSON.stringify(datos));
+
+    mostrar();
+}
+
+async function mostrar(){
+    const cont=document.getElementById("historial");
+    cont.innerHTML="";
+
+    const querySnapshot = await getDocs(collection(db,"asistencia"));
+    const datos = {};
+
+    querySnapshot.forEach((docu)=>{
+        datos[docu.id] = docu.data();
+    });
+
+    Object.keys(datos).sort().reverse().forEach(fecha=>{
+        cont.innerHTML+=`
+        <div class="historial-item">
+            <strong>${fecha}</strong><br>
+            Virtual: ${datos[fecha].virtual} |
+            Presencial: ${datos[fecha].presencial}
+        </div>`;
     });
 }
 
-const q = query(collection(db,"asistencias"), orderBy("timestamp"));
+window.mostrarLogin = function(){
+    document.getElementById("loginBox").style.display="block";
+}
 
-onSnapshot(q,(snapshot)=>{
-    tabla.innerHTML="";
-    snapshot.forEach(doc=>{
-        const data = doc.data();
-        tabla.innerHTML += `
-            <tr>
-                <td>${data.fecha}</td>
-                <td>${data.tipo}</td>
-            </tr>
-        `;
-    });
-});
+window.login = function(){
+    const u=document.getElementById("usuario").value;
+    const p=document.getElementById("password").value;
+
+    if(u===USER && p===PASS){
+        document.getElementById("adminPanel").style.display="block";
+        document.getElementById("loginBox").style.display="none";
+    }else{
+        alert("Credenciales incorrectas");
+    }
+}
+
+window.exportar = function(){
+    const datos=localStorage.getItem("asistencia");
+    if(!datos) return alert("No hay datos");
+
+    const blob=new Blob([datos],{type:"text/plain"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="asistencia.txt";
+    a.click();
+}
+
+window.importar = function(e){
+    const archivo=e.target.files[0];
+    if(!archivo) return;
+
+    const reader=new FileReader();
+    reader.onload=()=>{
+        try{
+            localStorage.setItem("asistencia",reader.result);
+            mostrar();
+            alert("Datos importados correctamente");
+        }catch{
+            alert("Archivo inválido");
+        }
+    };
+    reader.readAsText(archivo);
+}
+
+mostrar();
 </script>
-
-</body>
-</html>
