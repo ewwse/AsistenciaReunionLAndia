@@ -1,7 +1,7 @@
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyBs3r8RFztg6NxUbkZmaSag2CxfF7phvG8",
   authDomain: "sistema-asistencia-a47c9.firebaseapp.com",
@@ -11,61 +11,54 @@ const firebaseConfig = {
   appId: "1:386197839949:web:fa84a03ca12f5c4c20bc04"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 const USER="Landia";
 const PASS="Lapina1115";
 
 const getFecha=()=> new Date().toISOString().split("T")[0];
 
-window.guardar = async function(){
+function guardar(){
     const v=document.getElementById("virtual").value;
     const p=document.getElementById("presencial").value;
 
     if(!v || !p) return alert("Completa ambos campos");
 
-    const fecha = getFecha();
+    const fecha=getFecha();
+    const registro={virtual:+v,presencial:+p};
 
-    const registro = {virtual:+v,presencial:+p};
-
-    // Guardar en Firebase
-    await setDoc(doc(db,"asistencia",fecha), registro);
-
-    // Respaldo local
-    const datos=JSON.parse(localStorage.getItem("asistencia"))||{};
-    datos[fecha]=registro;
-    localStorage.setItem("asistencia",JSON.stringify(datos));
+    db.collection("asistencia").doc(fecha).set(registro);
 
     mostrar();
 }
 
-async function mostrar(){
+function mostrar(){
     const cont=document.getElementById("historial");
     cont.innerHTML="";
 
-    const querySnapshot = await getDocs(collection(db,"asistencia"));
-    const datos = {};
+    db.collection("asistencia").get().then(snapshot=>{
+        const datos={};
+        snapshot.forEach(doc=>{
+            datos[doc.id]=doc.data();
+        });
 
-    querySnapshot.forEach((docu)=>{
-        datos[docu.id] = docu.data();
-    });
-
-    Object.keys(datos).sort().reverse().forEach(fecha=>{
-        cont.innerHTML+=`
-        <div class="historial-item">
-            <strong>${fecha}</strong><br>
-            Virtual: ${datos[fecha].virtual} |
-            Presencial: ${datos[fecha].presencial}
-        </div>`;
+        Object.keys(datos).sort().reverse().forEach(fecha=>{
+            cont.innerHTML+=`
+            <div class="historial-item">
+                <strong>${fecha}</strong><br>
+                Virtual: ${datos[fecha].virtual} |
+                Presencial: ${datos[fecha].presencial}
+            </div>`;
+        });
     });
 }
 
-window.mostrarLogin = function(){
+function mostrarLogin(){
     document.getElementById("loginBox").style.display="block";
 }
 
-window.login = function(){
+function login(){
     const u=document.getElementById("usuario").value;
     const p=document.getElementById("password").value;
 
@@ -77,25 +70,34 @@ window.login = function(){
     }
 }
 
-window.exportar = function(){
-    const datos=localStorage.getItem("asistencia");
-    if(!datos) return alert("No hay datos");
+function exportar(){
+    db.collection("asistencia").get().then(snapshot=>{
+        const datos={};
+        snapshot.forEach(doc=>{
+            datos[doc.id]=doc.data();
+        });
 
-    const blob=new Blob([datos],{type:"text/plain"});
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="asistencia.txt";
-    a.click();
+        const blob=new Blob([JSON.stringify(datos)],{type:"text/plain"});
+        const a=document.createElement("a");
+        a.href=URL.createObjectURL(blob);
+        a.download="asistencia.txt";
+        a.click();
+    });
 }
 
-window.importar = function(e){
+function importar(e){
     const archivo=e.target.files[0];
     if(!archivo) return;
 
     const reader=new FileReader();
     reader.onload=()=>{
         try{
-            localStorage.setItem("asistencia",reader.result);
+            const datos=JSON.parse(reader.result);
+
+            Object.keys(datos).forEach(fecha=>{
+                db.collection("asistencia").doc(fecha).set(datos[fecha]);
+            });
+
             mostrar();
             alert("Datos importados correctamente");
         }catch{
