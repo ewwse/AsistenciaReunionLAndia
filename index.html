@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sistema de Asistencia</title>
 
+<!-- ICONO -->
+<link rel="icon" type="image/png" href="icon.png">
+
 <style>
 :root{
     --primary:#2563eb;
@@ -12,6 +15,7 @@
     --bg:#f1f5f9;
     --card:#ffffff;
     --gray:#64748b;
+    --success:#16a34a;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{
@@ -31,7 +35,19 @@ body{
     border-radius:20px;
     box-shadow:0 15px 35px rgba(0,0,0,0.08);
 }
-h1{text-align:center;margin-bottom:20px;font-size:clamp(18px, 4vw, 24px);}
+.header{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:15px;
+}
+.header img{
+    width:35px;
+}
+h1{
+    font-size:clamp(18px, 4vw, 24px);
+}
 label{font-size:14px;color:#334155;}
 input{
     width:100%;
@@ -49,14 +65,12 @@ button{
     font-weight:600;
     cursor:pointer;
     margin-top:8px;
-    transition:0.3s;
     font-size:15px;
 }
 .primary{background:var(--primary);color:white;}
 .primary:hover{background:var(--primary-dark);}
 .secondary{background:var(--gray);color:white;}
 .secondary:hover{background:#475569;}
-
 .admin-panel{
     display:none;
     margin-top:15px;
@@ -65,21 +79,10 @@ button{
     background:#f8fafc;
     border:1px solid #e2e8f0;
 }
-
-.porcentajes{
-    margin-top:15px;
-    padding:15px;
-    border-radius:15px;
-    background:#eef2ff;
-    border:1px solid #c7d2fe;
-    display:none;
-    font-size:14px;
-}
-
 .login-box{display:none;margin-top:15px;}
 .historial{
     margin-top:20px;
-    max-height:220px;
+    max-height:200px;
     overflow-y:auto;
     padding:10px;
     border-radius:12px;
@@ -94,51 +97,81 @@ button{
     box-shadow:0 3px 6px rgba(0,0,0,0.05);
     font-size:14px;
 }
+.stats{
+    margin-top:15px;
+    display:none;
+}
+.progress{
+    height:18px;
+    background:#e2e8f0;
+    border-radius:10px;
+    overflow:hidden;
+    margin-top:6px;
+}
+.bar{
+    height:100%;
+    width:0%;
+    background:var(--success);
+    transition:0.4s;
+}
+.percent-text{
+    font-size:14px;
+    margin-top:5px;
+}
 </style>
 </head>
 <body>
 
 <div class="card">
-<h1>📊 Sistema de Asistencia</h1>
 
-<label>Asistencia Virtual</label>
-<input type="number" id="virtual" placeholder="Cantidad">
+    <div class="header">
+        <img src="icon.png" alt="icono">
+        <h1>Sistema de Asistencia</h1>
+    </div>
 
-<label>Asistencia Presencial</label>
-<input type="number" id="presencial" placeholder="Cantidad">
+    <label>Asistencia Virtual</label>
+    <input type="number" id="virtual" placeholder="Cantidad">
 
-<button class="primary" onclick="guardar()">Guardar Asistencia</button>
-<button class="secondary" onclick="mostrarLogin()">Zona Administrativa</button>
+    <label>Asistencia Presencial</label>
+    <input type="number" id="presencial" placeholder="Cantidad">
 
-<div class="login-box" id="loginBox">
-    <input type="text" id="usuario" placeholder="Usuario">
-    <input type="password" id="password" placeholder="Contraseña">
-    <button class="primary" onclick="login()">Entrar</button>
-</div>
+    <button class="primary" onclick="guardar()">Guardar Asistencia</button>
+    <button class="secondary" onclick="mostrarLogin()">Zona Administrativa</button>
 
-<div class="admin-panel" id="adminPanel">
-    <button class="primary" onclick="exportar()">Descargar .txt</button>
-    <input type="file" accept=".txt" onchange="importar(event)" style="margin-top:10px;">
-</div>
+    <div class="login-box" id="loginBox">
+        <input type="text" id="usuario" placeholder="Usuario">
+        <input type="password" id="password" placeholder="Contraseña">
+        <button class="primary" onclick="login()">Entrar</button>
+    </div>
 
-<div class="porcentajes" id="porcentajes"></div>
+    <div class="admin-panel" id="adminPanel">
+        <button class="primary" onclick="exportar()">Descargar .txt</button>
+        <input type="file" accept=".txt" onchange="importar(event)" style="margin-top:10px;">
 
-<div class="historial" id="historial"></div>
+        <!-- ESTADÍSTICAS -->
+        <div class="stats" id="statsBox">
+            <h3 style="margin-top:15px;">Porcentaje Virtual</h3>
+            <div class="progress"><div class="bar" id="barra"></div></div>
+            <div class="percent-text" id="percentText"></div>
+        </div>
+    </div>
+
+    <div class="historial" id="historial"></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function(){
 
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_AUTH_DOMAIN",
-  projectId: "TU_PROJECT_ID",
-  storageBucket: "TU_STORAGE",
-  messagingSenderId: "TU_MSG_ID",
-  appId: "TU_APP_ID"
+  apiKey: "AIzaSyBs3r8RFztg6NxUbkZmaSag2CxfF7phvG8",
+  authDomain: "sistema-asistencia-a47c9.firebaseapp.com",
+  projectId: "sistema-asistencia-a47c9",
+  storageBucket: "sistema-asistencia-a47c9.firebasestorage.app",
+  messagingSenderId: "386197839949",
+  appId: "1:386197839949:web:fa84a03ca12f5c4c20bc04"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -152,24 +185,25 @@ const getFecha=()=> new Date().toISOString().split("T")[0];
 window.guardar=function(){
     const v=+document.getElementById("virtual").value;
     const p=+document.getElementById("presencial").value;
-    if(!v || !p) return alert("Completa ambos campos");
+    if(!v||!p) return alert("Completa ambos campos");
 
-    const fecha=getFecha();
-    db.collection("asistencia").doc(fecha).set({virtual:v,presencial:p})
+    db.collection("asistencia").doc(getFecha()).set({virtual:v,presencial:p})
     .then(()=>mostrar());
 }
 
 function mostrar(){
     const cont=document.getElementById("historial");
     cont.innerHTML="";
-    let totalV=0,totalP=0;
+
+    let totalVirtual=0;
+    let totalPresencial=0;
 
     db.collection("asistencia").get().then(snapshot=>{
         const datos={};
         snapshot.forEach(doc=>{
             datos[doc.id]=doc.data();
-            totalV+=doc.data().virtual;
-            totalP+=doc.data().presencial;
+            totalVirtual+=doc.data().virtual;
+            totalPresencial+=doc.data().presencial;
         });
 
         Object.keys(datos).sort().reverse().forEach(fecha=>{
@@ -181,23 +215,19 @@ function mostrar(){
             </div>`;
         });
 
-        calcularPorcentajes(totalV,totalP);
+        actualizarPorcentaje(totalVirtual,totalPresencial);
     });
 }
 
-function calcularPorcentajes(v,p){
-    const div=document.getElementById("porcentajes");
+function actualizarPorcentaje(v,p){
     const total=v+p;
     if(total===0) return;
 
-    const pv=((v/total)*100).toFixed(2);
-    const pp=((p/total)*100).toFixed(2);
+    const porcentaje=Math.round((v/total)*100);
 
-    div.innerHTML=`
-        <strong>Estadísticas Globales:</strong><br><br>
-        Total Virtual: ${v} (${pv}%)<br>
-        Total Presencial: ${p} (${pp}%)
-    `;
+    document.getElementById("barra").style.width=porcentaje+"%";
+    document.getElementById("percentText").innerText=
+        porcentaje+"% Virtual / "+(100-porcentaje)+"% Presencial";
 }
 
 window.mostrarLogin=function(){
@@ -208,11 +238,10 @@ window.login=function(){
     const u=document.getElementById("usuario").value;
     const p=document.getElementById("password").value;
 
-    if(u===USER && p===PASS){
+    if(u===USER&&p===PASS){
         document.getElementById("adminPanel").style.display="block";
         document.getElementById("loginBox").style.display="none";
-        document.getElementById("porcentajes").style.display="block";
-        mostrar();
+        document.getElementById("statsBox").style.display="block";
     }else{
         alert("Credenciales incorrectas");
     }
@@ -253,6 +282,7 @@ window.importar=function(e){
 }
 
 mostrar();
+
 });
 </script>
 
