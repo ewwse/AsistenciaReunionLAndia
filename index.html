@@ -13,11 +13,7 @@
     --card:#ffffff;
     --gray:#64748b;
 }
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
+*{margin:0;padding:0;box-sizing:border-box;}
 body{
     font-family:'Segoe UI', sans-serif;
     background:var(--bg);
@@ -35,15 +31,8 @@ body{
     border-radius:20px;
     box-shadow:0 15px 35px rgba(0,0,0,0.08);
 }
-h1{
-    text-align:center;
-    margin-bottom:20px;
-    font-size:clamp(18px, 4vw, 24px);
-}
-label{
-    font-size:14px;
-    color:#334155;
-}
+h1{text-align:center;margin-bottom:20px;font-size:clamp(18px, 4vw, 24px);}
+label{font-size:14px;color:#334155;}
 input{
     width:100%;
     padding:12px;
@@ -51,12 +40,6 @@ input{
     border-radius:12px;
     border:1px solid #d1d5db;
     font-size:15px;
-    transition:0.2s;
-}
-input:focus{
-    border-color:var(--primary);
-    box-shadow:0 0 0 3px rgba(37,99,235,0.15);
-    outline:none;
 }
 button{
     width:100%;
@@ -69,20 +52,11 @@ button{
     transition:0.3s;
     font-size:15px;
 }
-.primary{
-    background:var(--primary);
-    color:white;
-}
-.primary:hover{
-    background:var(--primary-dark);
-}
-.secondary{
-    background:var(--gray);
-    color:white;
-}
-.secondary:hover{
-    background:#475569;
-}
+.primary{background:var(--primary);color:white;}
+.primary:hover{background:var(--primary-dark);}
+.secondary{background:var(--gray);color:white;}
+.secondary:hover{background:#475569;}
+
 .admin-panel{
     display:none;
     margin-top:15px;
@@ -91,10 +65,18 @@ button{
     background:#f8fafc;
     border:1px solid #e2e8f0;
 }
-.login-box{
-    display:none;
+
+.porcentajes{
     margin-top:15px;
+    padding:15px;
+    border-radius:15px;
+    background:#eef2ff;
+    border:1px solid #c7d2fe;
+    display:none;
+    font-size:14px;
 }
+
+.login-box{display:none;margin-top:15px;}
 .historial{
     margin-top:20px;
     max-height:220px;
@@ -112,43 +94,38 @@ button{
     box-shadow:0 3px 6px rgba(0,0,0,0.05);
     font-size:14px;
 }
-@media (max-width:480px){
-    .card{
-        padding:18px;
-        border-radius:15px;
-    }
-}
 </style>
 </head>
 <body>
 
 <div class="card">
-    <h1>📊 Sistema de Asistencia</h1>
+<h1>📊 Sistema de Asistencia</h1>
 
-    <label>Asistencia Virtual</label>
-    <input type="number" id="virtual" placeholder="Cantidad">
+<label>Asistencia Virtual</label>
+<input type="number" id="virtual" placeholder="Cantidad">
 
-    <label>Asistencia Presencial</label>
-    <input type="number" id="presencial" placeholder="Cantidad">
+<label>Asistencia Presencial</label>
+<input type="number" id="presencial" placeholder="Cantidad">
 
-    <button class="primary" onclick="guardar()">Guardar Asistencia</button>
-    <button class="secondary" onclick="mostrarLogin()">Zona Administrativa</button>
+<button class="primary" onclick="guardar()">Guardar Asistencia</button>
+<button class="secondary" onclick="mostrarLogin()">Zona Administrativa</button>
 
-    <div class="login-box" id="loginBox">
-        <input type="text" id="usuario" placeholder="Usuario">
-        <input type="password" id="password" placeholder="Contraseña">
-        <button class="primary" onclick="login()">Entrar</button>
-    </div>
-
-    <div class="admin-panel" id="adminPanel">
-        <button class="primary" onclick="exportar()">Descargar .txt</button>
-        <input type="file" accept=".txt" onchange="importar(event)" style="margin-top:10px;">
-    </div>
-
-    <div class="historial" id="historial"></div>
+<div class="login-box" id="loginBox">
+    <input type="text" id="usuario" placeholder="Usuario">
+    <input type="password" id="password" placeholder="Contraseña">
+    <button class="primary" onclick="login()">Entrar</button>
 </div>
 
-<!-- Firebase -->
+<div class="admin-panel" id="adminPanel">
+    <button class="primary" onclick="exportar()">Descargar .txt</button>
+    <input type="file" accept=".txt" onchange="importar(event)" style="margin-top:10px;">
+</div>
+
+<div class="porcentajes" id="porcentajes"></div>
+
+<div class="historial" id="historial"></div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
@@ -156,12 +133,12 @@ button{
 document.addEventListener("DOMContentLoaded", function() {
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBs3r8RFztg6NxUbkZmaSag2CxfF7phvG8",
-  authDomain: "sistema-asistencia-a47c9.firebaseapp.com",
-  projectId: "sistema-asistencia-a47c9",
-  storageBucket: "sistema-asistencia-a47c9.firebasestorage.app",
-  messagingSenderId: "386197839949",
-  appId: "1:386197839949:web:fa84a03ca12f5c4c20bc04"
+  apiKey: "TU_API_KEY",
+  authDomain: "TU_AUTH_DOMAIN",
+  projectId: "TU_PROJECT_ID",
+  storageBucket: "TU_STORAGE",
+  messagingSenderId: "TU_MSG_ID",
+  appId: "TU_APP_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -172,27 +149,27 @@ const PASS="Lapina1115";
 
 const getFecha=()=> new Date().toISOString().split("T")[0];
 
-window.guardar = function(){
-    const v=document.getElementById("virtual").value;
-    const p=document.getElementById("presencial").value;
-
+window.guardar=function(){
+    const v=+document.getElementById("virtual").value;
+    const p=+document.getElementById("presencial").value;
     if(!v || !p) return alert("Completa ambos campos");
 
     const fecha=getFecha();
-    const registro={virtual:+v,presencial:+p};
-
-    db.collection("asistencia").doc(fecha).set(registro)
-    .then(()=> mostrar());
+    db.collection("asistencia").doc(fecha).set({virtual:v,presencial:p})
+    .then(()=>mostrar());
 }
 
 function mostrar(){
     const cont=document.getElementById("historial");
     cont.innerHTML="";
+    let totalV=0,totalP=0;
 
     db.collection("asistencia").get().then(snapshot=>{
         const datos={};
         snapshot.forEach(doc=>{
             datos[doc.id]=doc.data();
+            totalV+=doc.data().virtual;
+            totalP+=doc.data().presencial;
         });
 
         Object.keys(datos).sort().reverse().forEach(fecha=>{
@@ -203,32 +180,50 @@ function mostrar(){
                 Presencial: ${datos[fecha].presencial}
             </div>`;
         });
+
+        calcularPorcentajes(totalV,totalP);
     });
 }
 
-window.mostrarLogin = function(){
+function calcularPorcentajes(v,p){
+    const div=document.getElementById("porcentajes");
+    const total=v+p;
+    if(total===0) return;
+
+    const pv=((v/total)*100).toFixed(2);
+    const pp=((p/total)*100).toFixed(2);
+
+    div.innerHTML=`
+        <strong>Estadísticas Globales:</strong><br><br>
+        Total Virtual: ${v} (${pv}%)<br>
+        Total Presencial: ${p} (${pp}%)
+    `;
+}
+
+window.mostrarLogin=function(){
     document.getElementById("loginBox").style.display="block";
 }
 
-window.login = function(){
+window.login=function(){
     const u=document.getElementById("usuario").value;
     const p=document.getElementById("password").value;
 
     if(u===USER && p===PASS){
         document.getElementById("adminPanel").style.display="block";
         document.getElementById("loginBox").style.display="none";
+        document.getElementById("porcentajes").style.display="block";
+        mostrar();
     }else{
         alert("Credenciales incorrectas");
     }
 }
 
-window.exportar = function(){
+window.exportar=function(){
     db.collection("asistencia").get().then(snapshot=>{
         const datos={};
         snapshot.forEach(doc=>{
             datos[doc.id]=doc.data();
         });
-
         const blob=new Blob([JSON.stringify(datos)],{type:"text/plain"});
         const a=document.createElement("a");
         a.href=URL.createObjectURL(blob);
@@ -237,7 +232,7 @@ window.exportar = function(){
     });
 }
 
-window.importar = function(e){
+window.importar=function(e){
     const archivo=e.target.files[0];
     if(!archivo) return;
 
@@ -245,11 +240,9 @@ window.importar = function(e){
     reader.onload=()=>{
         try{
             const datos=JSON.parse(reader.result);
-
             Object.keys(datos).forEach(fecha=>{
                 db.collection("asistencia").doc(fecha).set(datos[fecha]);
             });
-
             mostrar();
             alert("Datos importados correctamente");
         }catch{
@@ -260,7 +253,6 @@ window.importar = function(e){
 }
 
 mostrar();
-
 });
 </script>
 
