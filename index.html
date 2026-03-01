@@ -1,7 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Asistencia</title>
+
+<style>
+:root{
+    --primary:#2563eb;
+    --primary-dark:#1e40af;
+    --bg:#f1f5f9;
+    --card:#ffffff;
+    --gray:#64748b;
+}
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+body{
+    font-family:'Segoe UI', sans-serif;
+    background:var(--bg);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    padding:20px;
+}
+.card{
+    background:var(--card);
+    width:100%;
+    max-width:500px;
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 15px 35px rgba(0,0,0,0.08);
+}
+h1{
+    text-align:center;
+    margin-bottom:20px;
+    font-size:clamp(18px, 4vw, 24px);
+}
+label{
+    font-size:14px;
+    color:#334155;
+}
+input{
+    width:100%;
+    padding:12px;
+    margin:8px 0 15px 0;
+    border-radius:12px;
+    border:1px solid #d1d5db;
+    font-size:15px;
+    transition:0.2s;
+}
+input:focus{
+    border-color:var(--primary);
+    box-shadow:0 0 0 3px rgba(37,99,235,0.15);
+    outline:none;
+}
+button{
+    width:100%;
+    padding:13px;
+    border:none;
+    border-radius:14px;
+    font-weight:600;
+    cursor:pointer;
+    margin-top:8px;
+    transition:0.3s;
+    font-size:15px;
+}
+.primary{
+    background:var(--primary);
+    color:white;
+}
+.primary:hover{
+    background:var(--primary-dark);
+}
+.secondary{
+    background:var(--gray);
+    color:white;
+}
+.secondary:hover{
+    background:#475569;
+}
+.admin-panel{
+    display:none;
+    margin-top:15px;
+    padding:15px;
+    border-radius:15px;
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+}
+.login-box{
+    display:none;
+    margin-top:15px;
+}
+.historial{
+    margin-top:20px;
+    max-height:220px;
+    overflow-y:auto;
+    padding:10px;
+    border-radius:12px;
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+}
+.historial-item{
+    padding:10px;
+    margin-bottom:8px;
+    background:white;
+    border-radius:10px;
+    box-shadow:0 3px 6px rgba(0,0,0,0.05);
+    font-size:14px;
+}
+@media (max-width:480px){
+    .card{
+        padding:18px;
+        border-radius:15px;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+    <h1>📊 Sistema de Asistencia</h1>
+
+    <label>Asistencia Virtual</label>
+    <input type="number" id="virtual" placeholder="Cantidad">
+
+    <label>Asistencia Presencial</label>
+    <input type="number" id="presencial" placeholder="Cantidad">
+
+    <button class="primary" onclick="guardar()">Guardar Asistencia</button>
+    <button class="secondary" onclick="mostrarLogin()">Zona Administrativa</button>
+
+    <div class="login-box" id="loginBox">
+        <input type="text" id="usuario" placeholder="Usuario">
+        <input type="password" id="password" placeholder="Contraseña">
+        <button class="primary" onclick="login()">Entrar</button>
+    </div>
+
+    <div class="admin-panel" id="adminPanel">
+        <button class="primary" onclick="exportar()">Descargar .txt</button>
+        <input type="file" accept=".txt" onchange="importar(event)" style="margin-top:10px;">
+    </div>
+
+    <div class="historial" id="historial"></div>
+</div>
+
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <script>
+document.addEventListener("DOMContentLoaded", function() {
+
 const firebaseConfig = {
   apiKey: "AIzaSyBs3r8RFztg6NxUbkZmaSag2CxfF7phvG8",
   authDomain: "sistema-asistencia-a47c9.firebaseapp.com",
@@ -19,7 +172,7 @@ const PASS="Lapina1115";
 
 const getFecha=()=> new Date().toISOString().split("T")[0];
 
-function guardar(){
+window.guardar = function(){
     const v=document.getElementById("virtual").value;
     const p=document.getElementById("presencial").value;
 
@@ -28,9 +181,8 @@ function guardar(){
     const fecha=getFecha();
     const registro={virtual:+v,presencial:+p};
 
-    db.collection("asistencia").doc(fecha).set(registro);
-
-    mostrar();
+    db.collection("asistencia").doc(fecha).set(registro)
+    .then(()=> mostrar());
 }
 
 function mostrar(){
@@ -54,11 +206,11 @@ function mostrar(){
     });
 }
 
-function mostrarLogin(){
+window.mostrarLogin = function(){
     document.getElementById("loginBox").style.display="block";
 }
 
-function login(){
+window.login = function(){
     const u=document.getElementById("usuario").value;
     const p=document.getElementById("password").value;
 
@@ -70,7 +222,7 @@ function login(){
     }
 }
 
-function exportar(){
+window.exportar = function(){
     db.collection("asistencia").get().then(snapshot=>{
         const datos={};
         snapshot.forEach(doc=>{
@@ -85,7 +237,7 @@ function exportar(){
     });
 }
 
-function importar(e){
+window.importar = function(e){
     const archivo=e.target.files[0];
     if(!archivo) return;
 
@@ -108,4 +260,9 @@ function importar(e){
 }
 
 mostrar();
+
+});
 </script>
+
+</body>
+</html>
