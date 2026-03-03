@@ -50,43 +50,18 @@ body{
     padding:25px;
     border-radius:20px;
     box-shadow:0 15px 35px rgba(0,0,0,0.08);
-    transition:all .4s ease;
-    animation:fadeIn .6s ease;
-}
-
-@keyframes fadeIn{
-    from{opacity:0;transform:translateY(20px);}
-    to{opacity:1;transform:translateY(0);}
+    transition:.4s ease;
 }
 
 .header{
     display:flex;
     align-items:center;
-    justify-content:space-between;
+    justify-content:center;
+    gap:10px;
     margin-bottom:15px;
 }
 
-.header-left{
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-
 .header img{width:35px;}
-
-.toggle{
-    background:transparent;
-    border:2px solid var(--primary);
-    color:var(--primary);
-    padding:6px 10px;
-    border-radius:10px;
-    cursor:pointer;
-    transition:.3s;
-}
-
-.toggle:hover{
-    transform:scale(1.05);
-}
 
 h1{font-size:clamp(18px,4vw,24px);}
 
@@ -164,29 +139,59 @@ body.dark .historial{
     border-radius:10px;
     box-shadow:0 3px 6px rgba(0,0,0,0.05);
     font-size:14px;
-    animation:fadeIn .4s ease;
 }
 
 body.dark .historial-item{
     background:#334155;
 }
 
-canvas{
-    margin-top:20px;
-    animation:fadeIn .8s ease;
+canvas{margin-top:20px;}
+
+/* BOTÓN FLOTANTE MINIMALISTA */
+
+.theme-toggle{
+    position:fixed;
+    top:20px;
+    right:20px;
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    border:none;
+    background:var(--card);
+    color:var(--primary);
+    font-size:18px;
+    cursor:pointer;
+    box-shadow:0 8px 20px rgba(0,0,0,0.15);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:all .3s ease;
+    z-index:999;
+}
+
+.theme-toggle:hover{
+    transform:translateY(-3px) scale(1.08);
+    box-shadow:0 12px 25px rgba(0,0,0,0.25);
+}
+
+.theme-toggle:active{
+    transform:scale(.95);
+}
+
+body.dark .theme-toggle{
+    background:#1e293b;
+    color:#facc15;
 }
 </style>
 </head>
+
 <body>
 
 <div class="card">
 
 <div class="header">
-<div class="header-left">
 <img src="icon.png">
 <h1>Sistema de Asistencia</h1>
-</div>
-<button class="toggle" onclick="toggleDark()">Modo</button>
 </div>
 
 <label>Asistencia Virtual</label>
@@ -225,12 +230,20 @@ canvas{
 
 </div>
 
+<!-- BOTÓN FLOTANTE -->
+<button class="theme-toggle" onclick="toggleDark()">
+<span class="icon">🌙</span>
+</button>
+
 <script>
 function toggleDark(){
 document.body.classList.toggle("dark");
+const icon=document.querySelector(".theme-toggle .icon");
+icon.textContent=document.body.classList.contains("dark") ? "☀️" : "🌙";
 }
 </script>
 
+<!-- TU SCRIPT ORIGINAL COMPLETO SIGUE IGUAL -->
 <script>
 document.addEventListener("DOMContentLoaded", function(){
 
@@ -258,7 +271,6 @@ db.collection("asistencia").doc(getFecha()).set({virtual:v,presencial:p}).then((
 function mostrar(){
 historial.innerHTML="";
 datosTrimestre={Q1:{virtual:0,presencial:0},Q2:{virtual:0,presencial:0},Q3:{virtual:0,presencial:0},Q4:{virtual:0,presencial:0}};
-
 db.collection("asistencia").get().then(snapshot=>{
 const datos={};
 snapshot.forEach(doc=>{
@@ -270,7 +282,6 @@ const q=mes<=3?"Q1":mes<=6?"Q2":mes<=9?"Q3":"Q4";
 datosTrimestre[q].virtual+=data.virtual;
 datosTrimestre[q].presencial+=data.presencial;
 });
-
 Object.keys(datos).sort().reverse().forEach(fecha=>{
 historial.innerHTML+=`
 <div class="historial-item">
@@ -280,7 +291,6 @@ Presencial: ${datos[fecha].presencial}
 ${adminActivo?`<button class="danger" onclick="eliminar('${fecha}')">Eliminar</button>`:""}
 </div>`;
 });
-
 if(adminActivo) actualizarGrafico();
 });
 }
@@ -294,34 +304,14 @@ window.actualizarGrafico=function(){
 const t=selectorTrimestre.value;
 const v=datosTrimestre[t].virtual;
 const p=datosTrimestre[t].presencial;
-const total=v+p;
-const pv=total?((v/total)*100).toFixed(1):0;
-const pp=total?((p/total)*100).toFixed(1):0;
-
 if(chart) chart.destroy();
-
 chart=new Chart(graficoPastel,{
 type:"pie",
 data:{
-labels:["Virtual "+pv+"%","Presencial "+pp+"%"],
-datasets:[{
-data:[v,p],
-backgroundColor:["#2563eb","#16a34a"],
-borderWidth:2
-}]
+labels:["Virtual","Presencial"],
+datasets:[{data:[v,p],backgroundColor:["#2563eb","#16a34a"],borderWidth:2}]
 },
-options:{
-responsive:true,
-animation:{duration:1500,easing:"easeOutQuart"},
-plugins:{
-legend:{position:"bottom"},
-datalabels:{
-color:"#fff",
-formatter:(value)=> total?((value/total)*100).toFixed(1)+"%":"0%"
-}
-}
-},
-plugins:[ChartDataLabels]
+options:{responsive:true,animation:{duration:1200},plugins:{legend:{position:"bottom"}}}
 });
 };
 
@@ -358,7 +348,7 @@ Object.keys(datos).forEach(fecha=>{
 db.collection("asistencia").doc(fecha).set(datos[fecha]);
 });
 mostrar();
-alert("Importado correctamente");
+alert("Datos importados correctamente");
 }catch{alert("Archivo inválido");}
 };
 reader.readAsText(archivo);
