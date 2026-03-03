@@ -3,303 +3,313 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Control de Asistencia</title>
+<title>Sistema de Asistencia</title>
 
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
 <style>
 :root{
 --bg:#f4f6f9;
 --card:#ffffff;
---text:#1e1e1e;
---accent:#4a90e2;
---danger:#ff4d4d;
+--text:#111827;
+--primary:#2563eb;
+--shadow:0 10px 30px rgba(0,0,0,0.08);
 }
 
 body.dark{
 --bg:#0f172a;
 --card:#1e293b;
 --text:#f1f5f9;
---accent:#3b82f6;
+--primary:#3b82f6;
+--shadow:0 10px 30px rgba(0,0,0,0.4);
 }
 
 body{
 margin:0;
-font-family:system-ui;
+font-family:Segoe UI, sans-serif;
 background:var(--bg);
 color:var(--text);
-transition:background .4s ease,color .4s ease;
+transition:0.3s;
+}
+
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 25px;
+background:var(--card);
+box-shadow:var(--shadow);
+}
+
+button{
+padding:10px 15px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+font-weight:600;
+}
+
+.primary{
+background:var(--primary);
+color:white;
+}
+
+.toggle{
+background:transparent;
+border:2px solid var(--primary);
+color:var(--primary);
 }
 
 .container{
-max-width:900px;
+max-width:1100px;
 margin:40px auto;
 padding:20px;
 }
 
 .card{
 background:var(--card);
-padding:20px;
-border-radius:16px;
-box-shadow:0 10px 30px rgba(0,0,0,.08);
-margin-bottom:20px;
-transition:.3s;
+padding:25px;
+border-radius:20px;
+box-shadow:var(--shadow);
+margin-bottom:30px;
 }
 
 input{
 padding:10px;
-margin:5px 0;
-width:100%;
+margin:5px;
 border-radius:8px;
 border:1px solid #ccc;
 }
 
-button{
-padding:10px 15px;
-border:none;
-border-radius:8px;
-cursor:pointer;
-background:var(--accent);
-color:white;
-transition:.3s;
-}
-
-button:hover{
-transform:scale(1.05);
-}
-
-.danger{
-background:var(--danger);
-}
-
-.historial-item{
-padding:10px;
-margin:5px 0;
-border-bottom:1px solid #ccc;
-animation:fadeIn .4s ease;
-}
-
-@keyframes fadeIn{
-from{opacity:0;transform:translateY(10px)}
-to{opacity:1;transform:translateY(0)}
-}
-
-#modoBtn{
-position:fixed;
-top:15px;
-right:15px;
-width:45px;
-height:45px;
-border-radius:50%;
-font-size:20px;
+.kpis{
 display:flex;
-align-items:center;
-justify-content:center;
-box-shadow:0 4px 12px rgba(0,0,0,.2);
+gap:20px;
+flex-wrap:wrap;
+margin-bottom:30px;
 }
 
-canvas{
-margin-top:20px;
+.kpi{
+flex:1;
+min-width:150px;
+text-align:center;
+padding:20px;
+border-radius:16px;
+background:var(--card);
+box-shadow:var(--shadow);
+transition:0.3s;
 }
 
+.kpi:hover{
+transform:translateY(-5px);
+}
+
+.kpi h2{
+margin:0;
+font-size:32px;
+}
+
+.chart-box{
+height:420px;
+}
+
+@media(max-width:768px){
+.kpis{flex-direction:column;}
+}
 </style>
 </head>
+
 <body>
 
-<button id="modoBtn" onclick="toggleModo()">🌙</button>
+<header>
+<h2>Sistema de Asistencia</h2>
+<button class="toggle" onclick="toggleDark()">Modo</button>
+</header>
 
 <div class="container">
 
-<h1>Control de Asistencia</h1>
-
 <div class="card">
 <h3>Registrar Asistencia</h3>
-<input type="number" id="virtual" placeholder="Cantidad Virtual">
-<input type="number" id="presencial" placeholder="Cantidad Presencial">
-<button onclick="guardar()">Guardar</button>
+<input type="date" id="fecha">
+<input type="number" id="virtual" placeholder="Virtual">
+<input type="number" id="presencial" placeholder="Presencial">
+<button class="primary" onclick="guardar()">Guardar</button>
 </div>
 
 <div class="card">
-<h3>Historial</h3>
-<div id="historial"></div>
+<h3>Login Admin</h3>
+<input type="text" id="user" placeholder="Usuario">
+<input type="password" id="pass" placeholder="Contraseña">
+<button class="primary" onclick="login()">Entrar</button>
 </div>
 
-<div class="card" id="adminPanel" style="display:none">
-<h3>Panel Admin</h3>
+<div id="adminPanel" style="display:none;">
+
+<div class="kpis">
+<div class="kpi">
+<h2 id="totalKPI">0</h2>
+<p>Total</p>
+</div>
+<div class="kpi">
+<h2 id="virtualKPI">0%</h2>
+<p>Virtual</p>
+</div>
+<div class="kpi">
+<h2 id="presencialKPI">0%</h2>
+<p>Presencial</p>
+</div>
+</div>
+
+<div class="card chart-box">
 <canvas id="grafico"></canvas>
 </div>
 
-<div class="card" id="loginBox">
-<h3>Login Admin</h3>
-<input type="text" id="usuario" placeholder="Usuario">
-<input type="password" id="password" placeholder="Contraseña">
-<button onclick="login()">Entrar</button>
 </div>
 
 </div>
 
-<script>
-const firebaseConfig={
-apiKey:"TU_API_KEY",
-authDomain:"TU_AUTH_DOMAIN",
-projectId:"TU_PROJECT_ID",
-storageBucket:"TU_STORAGE_BUCKET",
-messagingSenderId:"TU_SENDER_ID",
-appId:"TU_APP_ID"
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, setDoc, doc, getDocs } 
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyBs3r8RFztg6NxUbkZmaSag2CxfF7phvG8",
+authDomain: "sistema-asistencia-a47c9.firebaseapp.com",
+projectId: "sistema-asistencia-a47c9",
+storageBucket: "sistema-asistencia-a47c9.appspot.com",
+messagingSenderId: "386197839949",
+appId: "1:386197839949:web:fa84a03ca12f5c4c20bc04"
 };
 
-firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-const USER="Landia";
-const PASS="Lapina1115";
-
-let adminActivo=false;
 let chart;
-let datosTrimestre;
 
-const getFecha=()=>new Date().toISOString().split("T")[0];
+window.guardar = async function(){
 
-function guardar(){
-const v=Number(document.getElementById("virtual").value);
-const p=Number(document.getElementById("presencial").value);
-
-if(isNaN(v)||isNaN(p)){
-alert("Completa ambos campos");
+const fecha=document.getElementById("fecha").value;
+if(!fecha){
+alert("Selecciona una fecha");
 return;
 }
 
-db.collection("asistencia").doc(getFecha()).set({virtual:v,presencial:p})
-.then(()=>{
+const virtual=parseInt(document.getElementById("virtual").value)||0;
+const presencial=parseInt(document.getElementById("presencial").value)||0;
+
+await setDoc(doc(db,"asistencia",fecha),{virtual,presencial});
+
+alert("Guardado correctamente");
+
+// Limpiar campos
+document.getElementById("fecha").value="";
 document.getElementById("virtual").value="";
 document.getElementById("presencial").value="";
-mostrar();
-});
-}
+};
 
-function mostrar(){
-historial.innerHTML="";
-datosTrimestre={Q1:{virtual:0,presencial:0},Q2:{virtual:0,presencial:0},Q3:{virtual:0,presencial:0},Q4:{virtual:0,presencial:0}};
+window.login = async function(){
 
-db.collection("asistencia").get().then(snapshot=>{
-const datos={};
+const usuario=document.getElementById("user").value;
+const contraseña=document.getElementById("pass").value;
 
-snapshot.forEach(doc=>{
-const fecha=doc.id;
-const data=doc.data();
-datos[fecha]=data;
-
-const mes=parseInt(fecha.split("-")[1]);
-
-if(mes<=3){datosTrimestre.Q1.virtual+=data.virtual;datosTrimestre.Q1.presencial+=data.presencial;}
-else if(mes<=6){datosTrimestre.Q2.virtual+=data.virtual;datosTrimestre.Q2.presencial+=data.presencial;}
-else if(mes<=9){datosTrimestre.Q3.virtual+=data.virtual;datosTrimestre.Q3.presencial+=data.presencial;}
-else{datosTrimestre.Q4.virtual+=data.virtual;datosTrimestre.Q4.presencial+=data.presencial;}
-});
-
-Object.keys(datos).sort().reverse().forEach(fecha=>{
-historial.innerHTML+=`
-<div class="historial-item">
-<strong>${fecha}</strong><br>
-Virtual: ${datos[fecha].virtual} |
-Presencial: ${datos[fecha].presencial}
-${adminActivo?`<button class="danger" onclick="eliminar('${fecha}')">Eliminar</button>`:""}
-</div>`;
-});
-
-if(adminActivo) actualizarGrafico();
-});
-}
-
-function actualizarGrafico(){
-const labels=Object.keys(datosTrimestre);
-const virtual=labels.map(q=>datosTrimestre[q].virtual);
-const presencial=labels.map(q=>datosTrimestre[q].presencial);
-
-if(chart) chart.destroy();
-
-chart=new Chart(document.getElementById("grafico"),{
-type:"bar",
-data:{
-labels,
-datasets:[
-{
-label:"Virtual",
-data:virtual,
-borderRadius:8
-},
-{
-label:"Presencial",
-data:presencial,
-borderRadius:8
-}
-]
-},
-options:{
-responsive:true,
-plugins:{
-tooltip:{
-callbacks:{
-label:function(context){
-const total=context.dataset.data.reduce((a,b)=>a+b,0);
-const value=context.raw;
-const percent=((value/total)*100).toFixed(1);
-return context.dataset.label+": "+value+" ("+percent+"%)";
-}
-}
-}
-},
-animation:{
-duration:1000,
-easing:"easeOutQuart"
-},
-scales:{
-y:{beginAtZero:true}
-}
-}
-});
-}
-
-function login(){
-const user=document.getElementById("usuario").value;
-const pass=document.getElementById("password").value;
-
-if(user===USER && pass===PASS){
+if(usuario==="Landia" && contraseña==="Lapina1115"){
 document.getElementById("adminPanel").style.display="block";
-document.getElementById("loginBox").style.display="none";
-adminActivo=true;
-mostrar();
+await cargarGrafico();
 }else{
 alert("Credenciales incorrectas");
 }
-}
+};
 
-function eliminar(fecha){
-if(!confirm("¿Eliminar registro "+fecha+"?")) return;
-db.collection("asistencia").doc(fecha).delete().then(()=>mostrar());
-}
+async function cargarGrafico(){
 
-function toggleModo(){
+const snapshot=await getDocs(collection(db,"asistencia"));
+
+let totalVirtual=0;
+let totalPresencial=0;
+
+snapshot.forEach(doc=>{
+const data=doc.data();
+totalVirtual+=data.virtual;
+totalPresencial+=data.presencial;
+});
+
+const total=totalVirtual+totalPresencial;
+
+const pVirtual= total?((totalVirtual/total)*100).toFixed(1):0;
+const pPresencial= total?((totalPresencial/total)*100).toFixed(1):0;
+
+document.getElementById("totalKPI").innerText=total;
+document.getElementById("virtualKPI").innerText=pVirtual+"%";
+document.getElementById("presencialKPI").innerText=pPresencial+"%";
+
+if(chart) chart.destroy();
+
+const ctx=document.getElementById("grafico").getContext("2d");
+
+const grad1=ctx.createLinearGradient(0,0,0,400);
+grad1.addColorStop(0,"#3b82f6");
+grad1.addColorStop(1,"#1e3a8a");
+
+const grad2=ctx.createLinearGradient(0,0,0,400);
+grad2.addColorStop(0,"#22c55e");
+grad2.addColorStop(1,"#14532d");
+
+chart=new Chart(ctx,{
+type:"bar",
+data:{
+labels:["Virtual","Presencial"],
+datasets:[{
+data:[totalVirtual,totalPresencial],
+backgroundColor:[grad1,grad2],
+borderRadius:20,
+barThickness:90
+}]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+animation:{
+duration:1600,
+easing:"easeOutQuart"
+},
+plugins:{
+legend:{display:false},
+tooltip:{
+callbacks:{
+label:(context)=>{
+const value=context.raw;
+const percent=context.dataIndex===0?pVirtual:pPresencial;
+return value+" ("+percent+"%)";
+}
+}
+},
+datalabels:{
+anchor:"end",
+align:"top",
+formatter:(value,context)=>{
+return context.dataIndex===0?pVirtual+"%":pPresencial+"%";
+},
+font:{weight:"bold",size:18}
+}
+},
+scales:{
+y:{
+beginAtZero:true,
+grid:{color:"rgba(0,0,0,0.05)"}
+}
+}
+},
+plugins:[ChartDataLabels]
+});
+}
+</script>
+
+<script>
+function toggleDark(){
 document.body.classList.toggle("dark");
-const btn=document.getElementById("modoBtn");
-
-if(document.body.classList.contains("dark")){
-btn.textContent="☀️";
-localStorage.setItem("modo","dark");
-}else{
-btn.textContent="🌙";
-localStorage.setItem("modo","light");
 }
-}
-
-if(localStorage.getItem("modo")==="dark"){
-document.body.classList.add("dark");
-document.getElementById("modoBtn").textContent="☀️";
-}
-
-mostrar();
 </script>
 
 </body>
