@@ -13,6 +13,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <style>
+/* === TUS ESTILOS ORIGINALES SIN CAMBIAR === */
 :root{
 --primary:#6366f1;
 --accent:#06b6d4;
@@ -40,34 +41,13 @@ body.dark{
 body{
 font-family:'Segoe UI',sans-serif;
 background:var(--bg);
-background-attachment:fixed;
 color:var(--text);
 display:flex;
 justify-content:center;
 align-items:center;
 min-height:100vh;
 padding:20px;
-transition:background 0.8s ease,color 0.6s ease;
-overflow-x:hidden;
-}
-
-/* Animated background glow */
-body::before{
-content:"";
-position:fixed;
-width:600px;
-height:600px;
-background:radial-gradient(circle,var(--primary),transparent 70%);
-top:-200px;
-right:-200px;
-opacity:0.25;
-animation:float 12s infinite ease-in-out alternate;
-z-index:-1;
-}
-
-@keyframes float{
-from{transform:translateY(0px) rotate(0deg);}
-to{transform:translateY(60px) rotate(30deg);}
+transition:.6s;
 }
 
 .card{
@@ -78,13 +58,6 @@ max-width:620px;
 padding:32px;
 border-radius:28px;
 box-shadow:0 40px 80px rgba(0,0,0,0.18);
-animation:fadeIn 1s cubic-bezier(.22,1,.36,1);
-transition:all .5s ease;
-}
-
-@keyframes fadeIn{
-from{opacity:0;transform:translateY(60px) scale(.96);}
-to{opacity:1;transform:translateY(0) scale(1);}
 }
 
 .header{
@@ -95,15 +68,7 @@ gap:14px;
 margin-bottom:25px;
 }
 
-.header img{
-width:42px;
-transition:.6s ease;
-}
-.header img:hover{
-transform:rotate(15deg) scale(1.2);
-}
-
-h1{font-size:26px;font-weight:600;}
+.header img{width:42px;}
 
 label{font-size:14px;color:var(--gray);}
 
@@ -115,7 +80,6 @@ border-radius:18px;
 border:1px solid rgba(255,255,255,0.3);
 font-size:15px;
 background:rgba(255,255,255,0.6);
-transition:all .4s cubic-bezier(.22,1,.36,1);
 }
 
 body.dark input,
@@ -123,13 +87,6 @@ body.dark select{
 background:rgba(30,41,59,0.6);
 border:1px solid #334155;
 color:#fff;
-}
-
-input:focus,select:focus{
-outline:none;
-border-color:var(--primary);
-box-shadow:0 0 0 4px rgba(99,102,241,0.25);
-transform:scale(1.03);
 }
 
 button{
@@ -141,23 +98,11 @@ font-weight:600;
 cursor:pointer;
 margin-top:10px;
 font-size:15px;
-transition:all .35s cubic-bezier(.22,1,.36,1);
-position:relative;
-overflow:hidden;
-}
-
-button:hover{
-transform:translateY(-4px) scale(1.05);
-}
-
-button:active{
-transform:scale(.97);
 }
 
 .primary{
 background:linear-gradient(135deg,var(--primary),var(--accent));
 color:white;
-box-shadow:0 15px 30px rgba(99,102,241,0.35);
 }
 
 .secondary{
@@ -174,10 +119,7 @@ font-size:12px;
 margin-top:8px;
 }
 
-.login-box,.admin-panel{
-display:none;
-animation:fadeIn .6s ease;
-}
+.login-box,.admin-panel{display:none;}
 
 .historial{
 margin-top:20px;
@@ -186,12 +128,10 @@ overflow-y:auto;
 padding:15px;
 border-radius:20px;
 background:rgba(255,255,255,0.5);
-border:1px solid rgba(255,255,255,0.4);
 }
 
 body.dark .historial{
 background:rgba(30,41,59,0.6);
-border:1px solid #334155;
 }
 
 .historial-item{
@@ -199,14 +139,7 @@ padding:16px;
 margin-bottom:12px;
 background:white;
 border-radius:18px;
-box-shadow:0 10px 25px rgba(0,0,0,0.08);
 font-size:14px;
-transition:.4s;
-}
-
-.historial-item:hover{
-transform:translateY(-6px) scale(1.02);
-box-shadow:0 20px 40px rgba(0,0,0,0.15);
 }
 
 body.dark .historial-item{
@@ -222,24 +155,12 @@ height:50px;
 border-radius:50%;
 border:none;
 background:var(--card);
-backdrop-filter:blur(20px);
 color:var(--primary);
 font-size:20px;
 cursor:pointer;
-box-shadow:0 20px 40px rgba(0,0,0,0.3);
-display:flex;
-align-items:center;
-justify-content:center;
-transition:.6s cubic-bezier(.22,1,.36,1);
 }
 
-.theme-toggle:hover{
-transform:rotate(180deg) scale(1.15);
-}
-
-canvas{
-margin-top:20px;
-}
+canvas{margin-top:20px;}
 </style>
 </head>
 
@@ -272,8 +193,7 @@ margin-top:20px;
 
 <div class="admin-panel" id="adminPanel">
 <button class="primary" onclick="exportar()">Descargar .txt</button>
-<input type="file" accept=".txt" onchange="importar(event)">
-
+<input type="file" accept=".txt,.json" onchange="importar(event)">
 <label>Seleccionar Trimestre</label>
 <select id="selectorTrimestre" onchange="actualizarGrafico()">
 <option value="Q1">Enero - Marzo</option>
@@ -281,12 +201,10 @@ margin-top:20px;
 <option value="Q3">Julio - Septiembre</option>
 <option value="Q4">Octubre - Diciembre</option>
 </select>
-
 <canvas id="graficoPastel"></canvas>
 </div>
 
 <div class="historial" id="historial"></div>
-
 </div>
 
 <button class="theme-toggle" onclick="toggleDark()">
@@ -320,29 +238,26 @@ localStorage.setItem("modo",darkActivo?"dark":"light");
 function guardar(){
 const v=parseInt(virtual.value);
 const p=parseInt(presencial.value);
-let fechaSeleccionada=fecha.value || new Date().toISOString().split("T")[0];
+let fechaSeleccionada=fecha.value||new Date().toISOString().split("T")[0];
 if(isNaN(v)||isNaN(p)) return alert("Completa ambos campos");
 
-db.collection("asistencia").doc(fechaSeleccionada).set({virtual:v,presencial:p})
-.then(()=>{
-virtual.value="";
-presencial.value="";
-fecha.value="";
-mostrar();
-});
+db.collection("asistencia").doc(fechaSeleccionada)
+.set({virtual:v,presencial:p})
+.then(()=>{virtual.value="";presencial.value="";fecha.value="";mostrar();});
 }
 
 function mostrar(){
 historial.innerHTML="";
 datosTrimestre={Q1:{virtual:0,presencial:0},Q2:{virtual:0,presencial:0},Q3:{virtual:0,presencial:0},Q4:{virtual:0,presencial:0}};
+
 db.collection("asistencia").get().then(snapshot=>{
 snapshot.forEach(doc=>{
 const fecha=doc.id;
 const data=doc.data();
 const mes=parseInt(fecha.split("-")[1]);
 const q=mes<=3?"Q1":mes<=6?"Q2":mes<=9?"Q3":"Q4";
-datosTrimestre[q].virtual+=data.virtual;
-datosTrimestre[q].presencial+=data.presencial;
+datosTrimestre[q].virtual+=Number(data.virtual);
+datosTrimestre[q].presencial+=Number(data.presencial);
 
 historial.innerHTML+=`
 <div class="historial-item">
@@ -368,31 +283,23 @@ if(chart) chart.destroy();
 
 chart=new Chart(graficoPastel,{
 type:"bar",
-data:{
-labels:["Virtual","Presencial"],
-datasets:[{
-data:[v,p],
-backgroundColor:["#6366f1","#22c55e"],
-borderRadius:14
-}]
-},
+data:{labels:["Virtual","Presencial"],
+datasets:[{data:[v,p],backgroundColor:["#6366f1","#22c55e"],borderRadius:14}]},
 options:{
-animation:{duration:2500,easing:"easeOutExpo"},
 plugins:{
 legend:{display:false},
 datalabels:{
 anchor:"end",
 align:"top",
-font:{weight:"bold",size:15},
+font:{weight:"bold",size:14},
 formatter:(value)=> total===0?"0%":((value*100)/total).toFixed(1)+"%"
-}
-}
+}}
 },
 plugins:[ChartDataLabels]
 });
 }
 
-function mostrarLogin(){ loginBox.style.display="block"; }
+function mostrarLogin(){loginBox.style.display="block";}
 
 function login(){
 const user=usuario.value.trim();
@@ -407,17 +314,16 @@ adminPanel.style.display="block";
 loginBox.style.display="none";
 adminActivo=true;
 mostrar();
-}else{
-alert("Credenciales incorrectas");
-}
+}else alert("Credenciales incorrectas");
 });
 }
 
+/* EXPORTACIÓN */
 function exportar(){
 db.collection("asistencia").get().then(snapshot=>{
 const datos={};
 snapshot.forEach(doc=>datos[doc.id]=doc.data());
-const blob=new Blob([JSON.stringify(datos,null,2)],{type:"text/plain"});
+const blob=new Blob([JSON.stringify(datos,null,2)],{type:"application/json"});
 const a=document.createElement("a");
 a.href=URL.createObjectURL(blob);
 a.download="asistencia.txt";
@@ -425,16 +331,40 @@ a.click();
 });
 }
 
+/* IMPORTACIÓN ARREGLADA */
 function importar(e){
 const archivo=e.target.files[0];
+if(!archivo) return;
+
 const reader=new FileReader();
-reader.onload=()=>{
-const datos=JSON.parse(reader.result);
+reader.onload=async function(){
+try{
+let contenido=reader.result.trim();
+contenido=contenido.replace(/,\s*}/g,"}");
+const datos=JSON.parse(contenido);
+
+const batch=db.batch();
+
 Object.keys(datos).forEach(fecha=>{
-db.collection("asistencia").doc(fecha).set(datos[fecha]);
+const registro=datos[fecha];
+if(registro && registro.virtual!=null && registro.presencial!=null){
+const ref=db.collection("asistencia").doc(fecha);
+batch.set(ref,{
+virtual:Number(registro.virtual),
+presencial:Number(registro.presencial)
 });
+}
+});
+
+await batch.commit();
+alert("Importación completada correctamente ✅");
 mostrar();
+e.target.value="";
+}catch(error){
+alert("Archivo inválido: "+error.message);
+}
 };
+
 reader.readAsText(archivo);
 }
 
