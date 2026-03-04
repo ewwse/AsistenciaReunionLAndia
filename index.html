@@ -95,9 +95,7 @@ button{
     transition:.3s;
 }
 
-button:hover{
-    transform:translateY(-3px);
-}
+button:hover{transform:translateY(-3px);}
 
 .primary{background:var(--primary);color:white;}
 .primary:hover{background:var(--primary-dark);}
@@ -147,8 +145,6 @@ body.dark .historial-item{
 
 canvas{margin-top:20px;}
 
-/* BOTÓN FLOTANTE MINIMALISTA */
-
 .theme-toggle{
     position:fixed;
     top:20px;
@@ -172,10 +168,6 @@ canvas{margin-top:20px;}
 .theme-toggle:hover{
     transform:translateY(-3px) scale(1.08);
     box-shadow:0 12px 25px rgba(0,0,0,0.25);
-}
-
-.theme-toggle:active{
-    transform:scale(.95);
 }
 
 body.dark .theme-toggle{
@@ -230,23 +222,11 @@ body.dark .theme-toggle{
 
 </div>
 
-<!-- BOTÓN FLOTANTE -->
 <button class="theme-toggle" onclick="toggleDark()">
 <span class="icon">🌙</span>
 </button>
 
 <script>
-function toggleDark(){
-document.body.classList.toggle("dark");
-const icon=document.querySelector(".theme-toggle .icon");
-icon.textContent=document.body.classList.contains("dark") ? "☀️" : "🌙";
-}
-</script>
-
-<!-- TU SCRIPT ORIGINAL COMPLETO SIGUE IGUAL -->
-<script>
-document.addEventListener("DOMContentLoaded", function(){
-
 firebase.initializeApp({
 apiKey:"AIzaSyBs3r8RFztg6NxUbkZmaSag2CxfF7phvG8",
 authDomain:"sistema-asistencia-a47c9.firebaseapp.com",
@@ -261,33 +241,48 @@ let chart;
 let datosTrimestre={Q1:{virtual:0,presencial:0},Q2:{virtual:0,presencial:0},Q3:{virtual:0,presencial:0},Q4:{virtual:0,presencial:0}};
 const getFecha=()=>new Date().toISOString().split("T")[0];
 
-window.guardar=function(){
+function toggleDark(){
+const body=document.body;
+const icon=document.querySelector(".icon");
+body.classList.toggle("dark");
+const isDark=body.classList.contains("dark");
+localStorage.setItem("modoOscuro",isDark);
+icon.textContent=isDark?"☀️":"🌙";
+}
+
+const modoGuardado=localStorage.getItem("modoOscuro");
+if(modoGuardado==="true"){
+document.body.classList.add("dark");
+document.querySelector(".icon").textContent="☀️";
+}
+
+function guardar(){
 const v=parseInt(virtual.value);
 const p=parseInt(presencial.value);
 if(isNaN(v)||isNaN(p)) return alert("Completa ambos campos");
-db.collection("asistencia").doc(getFecha()).set({virtual:v,presencial:p}).then(()=>{virtual.value="";presencial.value="";mostrar();});
-};
+db.collection("asistencia").doc(getFecha()).set({virtual:v,presencial:p})
+.then(()=>{
+virtual.value="";
+presencial.value="";
+mostrar();
+});
+}
 
 function mostrar(){
 historial.innerHTML="";
 datosTrimestre={Q1:{virtual:0,presencial:0},Q2:{virtual:0,presencial:0},Q3:{virtual:0,presencial:0},Q4:{virtual:0,presencial:0}};
 db.collection("asistencia").get().then(snapshot=>{
-const datos={};
 snapshot.forEach(doc=>{
 const fecha=doc.id;
 const data=doc.data();
-datos[fecha]=data;
 const mes=parseInt(fecha.split("-")[1]);
 const q=mes<=3?"Q1":mes<=6?"Q2":mes<=9?"Q3":"Q4";
 datosTrimestre[q].virtual+=data.virtual;
 datosTrimestre[q].presencial+=data.presencial;
-});
-Object.keys(datos).sort().reverse().forEach(fecha=>{
 historial.innerHTML+=`
 <div class="historial-item">
 <strong>${fecha}</strong><br>
-Virtual: ${datos[fecha].virtual} |
-Presencial: ${datos[fecha].presencial}
+Virtual: ${data.virtual} | Presencial: ${data.presencial}
 ${adminActivo?`<button class="danger" onclick="eliminar('${fecha}')">Eliminar</button>`:""}
 </div>`;
 });
@@ -295,12 +290,12 @@ if(adminActivo) actualizarGrafico();
 });
 }
 
-window.eliminar=function(fecha){
+function eliminar(fecha){
 if(!confirm("¿Eliminar "+fecha+"?")) return;
 db.collection("asistencia").doc(fecha).delete().then(()=>mostrar());
-};
+}
 
-window.actualizarGrafico=function(){
+function actualizarGrafico(){
 const t=selectorTrimestre.value;
 const v=datosTrimestre[t].virtual;
 const p=datosTrimestre[t].presencial;
@@ -309,23 +304,41 @@ chart=new Chart(graficoPastel,{
 type:"pie",
 data:{
 labels:["Virtual","Presencial"],
-datasets:[{data:[v,p],backgroundColor:["#2563eb","#16a34a"],borderWidth:2}]
+datasets:[{
+data:[v,p],
+backgroundColor:["#2563eb","#16a34a"]
+}]
 },
-options:{responsive:true,animation:{duration:1200},plugins:{legend:{position:"bottom"}}}
+options:{
+plugins:{
+legend:{position:"bottom"},
+datalabels:{
+color:"#fff",
+formatter:(value,ctx)=>{
+let sum=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+let percentage=(value*100/sum).toFixed(1)+"%";
+return percentage;
+}
+}
+},
+animation:{duration:1200}
+},
+plugins:[ChartDataLabels]
 });
-};
+}
 
-window.mostrarLogin=function(){loginBox.style.display="block";};
-window.login=function(){
+function mostrarLogin(){loginBox.style.display="block";}
+
+function login(){
 if(usuario.value===USER && password.value===PASS){
 adminPanel.style.display="block";
 loginBox.style.display="none";
 adminActivo=true;
 mostrar();
 }else alert("Credenciales incorrectas");
-};
+}
 
-window.exportar=function(){
+function exportar(){
 db.collection("asistencia").get().then(snapshot=>{
 const datos={};
 snapshot.forEach(doc=>datos[doc.id]=doc.data());
@@ -335,9 +348,9 @@ a.href=URL.createObjectURL(blob);
 a.download="asistencia.txt";
 a.click();
 });
-};
+}
 
-window.importar=function(e){
+function importar(e){
 const archivo=e.target.files[0];
 if(!archivo) return;
 const reader=new FileReader();
@@ -352,10 +365,9 @@ alert("Datos importados correctamente");
 }catch{alert("Archivo inválido");}
 };
 reader.readAsText(archivo);
-};
+}
 
 mostrar();
-});
 </script>
 
 </body>
