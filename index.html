@@ -6,6 +6,7 @@
 <title>Sistema de Asistencia</title>
 
 <link rel="icon" type="image/png" href="icon.png">
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -13,23 +14,23 @@
 
 <style>
 :root{
---primary:#4f46e5;
+--primary:#6366f1;
 --accent:#06b6d4;
 --success:#22c55e;
 --danger:#ef4444;
 --bg:linear-gradient(135deg,#eef2ff,#f8fafc);
---card:rgba(255,255,255,0.75);
+--card:rgba(255,255,255,0.65);
 --text:#0f172a;
 --gray:#64748b;
 }
 
 body.dark{
---primary:#818cf8;
+--primary:#8b5cf6;
 --accent:#22d3ee;
 --success:#4ade80;
 --danger:#f87171;
 --bg:linear-gradient(135deg,#0f172a,#1e293b);
---card:rgba(30,41,59,0.8);
+--card:rgba(30,41,59,0.75);
 --text:#f1f5f9;
 --gray:#94a3b8;
 }
@@ -46,50 +47,75 @@ justify-content:center;
 align-items:center;
 min-height:100vh;
 padding:20px;
-transition:all .6s cubic-bezier(.4,0,.2,1);
+transition:background 0.8s ease,color 0.6s ease;
+overflow-x:hidden;
+}
+
+/* Animated background glow */
+body::before{
+content:"";
+position:fixed;
+width:600px;
+height:600px;
+background:radial-gradient(circle,var(--primary),transparent 70%);
+top:-200px;
+right:-200px;
+opacity:0.25;
+animation:float 12s infinite ease-in-out alternate;
+z-index:-1;
+}
+
+@keyframes float{
+from{transform:translateY(0px) rotate(0deg);}
+to{transform:translateY(60px) rotate(30deg);}
 }
 
 .card{
 background:var(--card);
-backdrop-filter:blur(20px);
+backdrop-filter:blur(35px);
 width:100%;
-max-width:600px;
-padding:30px;
-border-radius:24px;
-box-shadow:0 25px 70px rgba(0,0,0,0.15);
-animation:fadeIn .8s ease;
-transition:.4s;
+max-width:620px;
+padding:32px;
+border-radius:28px;
+box-shadow:0 40px 80px rgba(0,0,0,0.18);
+animation:fadeIn 1s cubic-bezier(.22,1,.36,1);
+transition:all .5s ease;
 }
 
 @keyframes fadeIn{
-from{opacity:0;transform:translateY(30px);}
-to{opacity:1;transform:translateY(0);}
+from{opacity:0;transform:translateY(60px) scale(.96);}
+to{opacity:1;transform:translateY(0) scale(1);}
 }
 
 .header{
 display:flex;
 align-items:center;
 justify-content:center;
-gap:12px;
-margin-bottom:20px;
+gap:14px;
+margin-bottom:25px;
 }
 
-.header img{width:40px;transition:.5s;}
-.header img:hover{transform:rotate(10deg) scale(1.1);}
+.header img{
+width:42px;
+transition:.6s ease;
+}
+.header img:hover{
+transform:rotate(15deg) scale(1.2);
+}
 
-h1{font-size:24px;font-weight:600;}
+h1{font-size:26px;font-weight:600;}
 
 label{font-size:14px;color:var(--gray);}
 
 input,select{
 width:100%;
-padding:14px;
-margin:8px 0 18px 0;
-border-radius:16px;
-border:1px solid #e2e8f0;
+padding:15px;
+margin:10px 0 20px 0;
+border-radius:18px;
+border:1px solid rgba(255,255,255,0.3);
 font-size:15px;
-background:rgba(255,255,255,0.7);
-transition:.3s ease;
+background:rgba(255,255,255,0.6);
+transition:all .4s cubic-bezier(.22,1,.36,1);
 }
 
 body.dark input,
@@ -102,30 +128,36 @@ color:#fff;
 input:focus,select:focus{
 outline:none;
 border-color:var(--primary);
-box-shadow:0 0 0 4px rgba(79,70,229,0.25);
-transform:scale(1.02);
+box-shadow:0 0 0 4px rgba(99,102,241,0.25);
+transform:scale(1.03);
 }
 
 button{
 width:100%;
 padding:15px;
 border:none;
-border-radius:18px;
+border-radius:20px;
 font-weight:600;
 cursor:pointer;
 margin-top:10px;
 font-size:15px;
-transition:all .3s cubic-bezier(.4,0,.2,1);
+transition:all .35s cubic-bezier(.22,1,.36,1);
+position:relative;
+overflow:hidden;
 }
 
 button:hover{
-transform:translateY(-4px) scale(1.03);
+transform:translateY(-4px) scale(1.05);
+}
+
+button:active{
+transform:scale(.97);
 }
 
 .primary{
 background:linear-gradient(135deg,var(--primary),var(--accent));
 color:white;
-box-shadow:0 10px 25px rgba(79,70,229,0.35);
+box-shadow:0 15px 30px rgba(99,102,241,0.35);
 }
 
 .secondary{
@@ -139,20 +171,22 @@ color:white;
 padding:6px 10px;
 border-radius:10px;
 font-size:12px;
-margin-top:6px;
+margin-top:8px;
 }
 
-.login-box,.admin-panel{display:none;}
+.login-box,.admin-panel{
+display:none;
+animation:fadeIn .6s ease;
+}
 
 .historial{
 margin-top:20px;
-max-height:220px;
+max-height:240px;
 overflow-y:auto;
-padding:12px;
-border-radius:18px;
-background:rgba(255,255,255,0.6);
-border:1px solid #e2e8f0;
-transition:.4s;
+padding:15px;
+border-radius:20px;
+background:rgba(255,255,255,0.5);
+border:1px solid rgba(255,255,255,0.4);
 }
 
 body.dark .historial{
@@ -161,50 +195,50 @@ border:1px solid #334155;
 }
 
 .historial-item{
-padding:14px;
-margin-bottom:10px;
+padding:16px;
+margin-bottom:12px;
 background:white;
-border-radius:16px;
-box-shadow:0 8px 20px rgba(0,0,0,0.08);
+border-radius:18px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
 font-size:14px;
-animation:slideUp .4s ease;
-transition:.3s;
-}
-
-.historial-item:hover{
-transform:translateY(-3px);
-box-shadow:0 12px 30px rgba(0,0,0,0.15);
-}
-
-@keyframes slideUp{
-from{opacity:0;transform:translateY(15px);}
-to{opacity:1;transform:translateY(0);}
-}
-
-body.dark .historial-item{background:#334155;}
-
-.theme-toggle{
-position:fixed;
-top:25px;
-right:25px;
-width:55px;
-height:55px;
-border-radius:50%;
-border:none;
-background:var(--card);
-backdrop-filter:blur(12px);
-color:var(--primary);
-font-size:22px;
-cursor:pointer;
-box-shadow:0 15px 35px rgba(0,0,0,0.3);
-display:flex;
-align-items:center;
-justify-content:center;
 transition:.4s;
 }
 
+.historial-item:hover{
+transform:translateY(-6px) scale(1.02);
+box-shadow:0 20px 40px rgba(0,0,0,0.15);
+}
+
+body.dark .historial-item{
+background:#334155;
+}
+
+.theme-toggle{
+position:fixed;
+top:20px;
+right:20px;
+width:50px;
+height:50px;
+border-radius:50%;
+border:none;
+background:var(--card);
+backdrop-filter:blur(20px);
+color:var(--primary);
+font-size:20px;
+cursor:pointer;
+box-shadow:0 20px 40px rgba(0,0,0,0.3);
+display:flex;
+align-items:center;
+justify-content:center;
+transition:.6s cubic-bezier(.22,1,.36,1);
+}
+
 .theme-toggle:hover{
-transform:rotate(180deg) scale(1.1);
+transform:rotate(180deg) scale(1.15);
+}
+
+canvas{
+margin-top:20px;
 }
 </style>
 </head>
@@ -237,7 +271,6 @@ transform:rotate(180deg) scale(1.1);
 </div>
 
 <div class="admin-panel" id="adminPanel">
-
 <button class="primary" onclick="exportar()">Descargar .txt</button>
 <input type="file" accept=".txt" onchange="importar(event)">
 
@@ -250,7 +283,6 @@ transform:rotate(180deg) scale(1.1);
 </select>
 
 <canvas id="graficoPastel"></canvas>
-
 </div>
 
 <div class="historial" id="historial"></div>
@@ -273,21 +305,22 @@ let adminActivo=false;
 let chart;
 let datosTrimestre={Q1:{virtual:0,presencial:0},Q2:{virtual:0,presencial:0},Q3:{virtual:0,presencial:0},Q4:{virtual:0,presencial:0}};
 
+if(localStorage.getItem("modo")==="dark"){
+document.body.classList.add("dark");
+document.querySelector(".icon").textContent="☀️";
+}
+
 function toggleDark(){
 document.body.classList.toggle("dark");
-const icon=document.querySelector(".icon");
-icon.textContent=document.body.classList.contains("dark")?"☀️":"🌙";
+const darkActivo=document.body.classList.contains("dark");
+document.querySelector(".icon").textContent=darkActivo?"☀️":"🌙";
+localStorage.setItem("modo",darkActivo?"dark":"light");
 }
 
 function guardar(){
 const v=parseInt(virtual.value);
 const p=parseInt(presencial.value);
-let fechaSeleccionada=fecha.value;
-
-if(!fechaSeleccionada){
-fechaSeleccionada=new Date().toISOString().split("T")[0];
-}
-
+let fechaSeleccionada=fecha.value || new Date().toISOString().split("T")[0];
 if(isNaN(v)||isNaN(p)) return alert("Completa ambos campos");
 
 db.collection("asistencia").doc(fechaSeleccionada).set({virtual:v,presencial:p})
@@ -331,31 +364,27 @@ const t=selectorTrimestre.value;
 const v=datosTrimestre[t].virtual;
 const p=datosTrimestre[t].presencial;
 const total=v+p;
-
 if(chart) chart.destroy();
 
 chart=new Chart(graficoPastel,{
-type:"doughnut",
+type:"bar",
 data:{
 labels:["Virtual","Presencial"],
 datasets:[{
 data:[v,p],
-backgroundColor:["#4f46e5","#22c55e"],
-borderWidth:4
+backgroundColor:["#6366f1","#22c55e"],
+borderRadius:14
 }]
 },
 options:{
-cutout:"65%",
-animation:{duration:1800,easing:"easeOutBounce"},
+animation:{duration:2500,easing:"easeOutExpo"},
 plugins:{
-legend:{position:"bottom"},
+legend:{display:false},
 datalabels:{
-color:"#fff",
-font:{weight:"bold",size:16},
-formatter:(value)=>{
-if(total===0) return "0%";
-return ((value*100)/total).toFixed(1)+"%";
-}
+anchor:"end",
+align:"top",
+font:{weight:"bold",size:15},
+formatter:(value)=> total===0?"0%":((value*100)/total).toFixed(1)+"%"
 }
 }
 },
