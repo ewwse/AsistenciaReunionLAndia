@@ -13,166 +13,198 @@
 
 <style>
 :root{
-    --primary:#2563eb;
-    --primary-dark:#1e40af;
-    --bg:#f1f5f9;
-    --card:#ffffff;
-    --gray:#64748b;
-    --danger:#dc2626;
-    --text:#0f172a;
+--primary:#4f46e5;
+--accent:#06b6d4;
+--success:#22c55e;
+--danger:#ef4444;
+--bg:linear-gradient(135deg,#eef2ff,#f8fafc);
+--card:rgba(255,255,255,0.75);
+--text:#0f172a;
+--gray:#64748b;
 }
 
 body.dark{
-    --bg:#0f172a;
-    --card:#1e293b;
-    --gray:#94a3b8;
-    --text:#f1f5f9;
+--primary:#818cf8;
+--accent:#22d3ee;
+--success:#4ade80;
+--danger:#f87171;
+--bg:linear-gradient(135deg,#0f172a,#1e293b);
+--card:rgba(30,41,59,0.8);
+--text:#f1f5f9;
+--gray:#94a3b8;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;}
 
 body{
-    font-family:'Segoe UI',sans-serif;
-    background:var(--bg);
-    color:var(--text);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-    padding:20px;
-    transition:background .4s ease,color .4s ease;
+font-family:'Segoe UI',sans-serif;
+background:var(--bg);
+background-attachment:fixed;
+color:var(--text);
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+padding:20px;
+transition:all .6s cubic-bezier(.4,0,.2,1);
 }
 
 .card{
-    background:var(--card);
-    width:100%;
-    max-width:600px;
-    padding:25px;
-    border-radius:20px;
-    box-shadow:0 15px 35px rgba(0,0,0,0.08);
-    transition:.4s ease;
+background:var(--card);
+backdrop-filter:blur(20px);
+width:100%;
+max-width:600px;
+padding:30px;
+border-radius:24px;
+box-shadow:0 25px 70px rgba(0,0,0,0.15);
+animation:fadeIn .8s ease;
+transition:.4s;
+}
+
+@keyframes fadeIn{
+from{opacity:0;transform:translateY(30px);}
+to{opacity:1;transform:translateY(0);}
 }
 
 .header{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    margin-bottom:15px;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:12px;
+margin-bottom:20px;
 }
 
-.header img{width:35px;}
+.header img{width:40px;transition:.5s;}
+.header img:hover{transform:rotate(10deg) scale(1.1);}
 
-h1{font-size:clamp(18px,4vw,24px);}
+h1{font-size:24px;font-weight:600;}
 
 label{font-size:14px;color:var(--gray);}
 
 input,select{
-    width:100%;
-    padding:12px;
-    margin:8px 0 15px 0;
-    border-radius:12px;
-    border:1px solid #d1d5db;
-    font-size:15px;
-    transition:.3s;
+width:100%;
+padding:14px;
+margin:8px 0 18px 0;
+border-radius:16px;
+border:1px solid #e2e8f0;
+font-size:15px;
+background:rgba(255,255,255,0.7);
+transition:.3s ease;
+}
+
+body.dark input,
+body.dark select{
+background:rgba(30,41,59,0.6);
+border:1px solid #334155;
+color:#fff;
 }
 
 input:focus,select:focus{
-    outline:none;
-    border-color:var(--primary);
-    box-shadow:0 0 0 3px rgba(37,99,235,0.2);
+outline:none;
+border-color:var(--primary);
+box-shadow:0 0 0 4px rgba(79,70,229,0.25);
+transform:scale(1.02);
 }
 
 button{
-    width:100%;
-    padding:13px;
-    border:none;
-    border-radius:14px;
-    font-weight:600;
-    cursor:pointer;
-    margin-top:8px;
-    font-size:15px;
-    transition:.3s;
+width:100%;
+padding:15px;
+border:none;
+border-radius:18px;
+font-weight:600;
+cursor:pointer;
+margin-top:10px;
+font-size:15px;
+transition:all .3s cubic-bezier(.4,0,.2,1);
 }
 
-button:hover{transform:translateY(-3px);}
+button:hover{
+transform:translateY(-4px) scale(1.03);
+}
 
-.primary{background:var(--primary);color:white;}
-.primary:hover{background:var(--primary-dark);}
+.primary{
+background:linear-gradient(135deg,var(--primary),var(--accent));
+color:white;
+box-shadow:0 10px 25px rgba(79,70,229,0.35);
+}
 
-.secondary{background:var(--gray);color:white;}
-.secondary:hover{background:#475569;}
+.secondary{
+background:linear-gradient(135deg,#64748b,#475569);
+color:white;
+}
 
 .danger{
-    background:var(--danger);
-    color:white;
-    padding:6px 10px;
-    border-radius:8px;
-    font-size:12px;
-    margin-top:6px;
+background:linear-gradient(135deg,var(--danger),#dc2626);
+color:white;
+padding:6px 10px;
+border-radius:10px;
+font-size:12px;
+margin-top:6px;
 }
 
 .login-box,.admin-panel{display:none;}
 
 .historial{
-    margin-top:20px;
-    max-height:200px;
-    overflow-y:auto;
-    padding:10px;
-    border-radius:12px;
-    background:#f8fafc;
-    border:1px solid #e2e8f0;
-    transition:.3s;
+margin-top:20px;
+max-height:220px;
+overflow-y:auto;
+padding:12px;
+border-radius:18px;
+background:rgba(255,255,255,0.6);
+border:1px solid #e2e8f0;
+transition:.4s;
 }
 
 body.dark .historial{
-    background:#1e293b;
-    border:1px solid #334155;
+background:rgba(30,41,59,0.6);
+border:1px solid #334155;
 }
 
 .historial-item{
-    padding:10px;
-    margin-bottom:8px;
-    background:white;
-    border-radius:10px;
-    box-shadow:0 3px 6px rgba(0,0,0,0.05);
-    font-size:14px;
+padding:14px;
+margin-bottom:10px;
+background:white;
+border-radius:16px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+font-size:14px;
+animation:slideUp .4s ease;
+transition:.3s;
 }
 
-body.dark .historial-item{
-    background:#334155;
+.historial-item:hover{
+transform:translateY(-3px);
+box-shadow:0 12px 30px rgba(0,0,0,0.15);
 }
 
-canvas{margin-top:20px;}
+@keyframes slideUp{
+from{opacity:0;transform:translateY(15px);}
+to{opacity:1;transform:translateY(0);}
+}
+
+body.dark .historial-item{background:#334155;}
 
 .theme-toggle{
-    position:fixed;
-    top:20px;
-    right:20px;
-    width:48px;
-    height:48px;
-    border-radius:50%;
-    border:none;
-    background:var(--card);
-    color:var(--primary);
-    font-size:18px;
-    cursor:pointer;
-    box-shadow:0 8px 20px rgba(0,0,0,0.15);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    transition:all .3s ease;
-    z-index:999;
+position:fixed;
+top:25px;
+right:25px;
+width:55px;
+height:55px;
+border-radius:50%;
+border:none;
+background:var(--card);
+backdrop-filter:blur(12px);
+color:var(--primary);
+font-size:22px;
+cursor:pointer;
+box-shadow:0 15px 35px rgba(0,0,0,0.3);
+display:flex;
+align-items:center;
+justify-content:center;
+transition:.4s;
 }
 
 .theme-toggle:hover{
-    transform:translateY(-3px) scale(1.08);
-    box-shadow:0 12px 25px rgba(0,0,0,0.25);
-}
-
-body.dark .theme-toggle{
-    background:#1e293b;
-    color:#facc15;
+transform:rotate(180deg) scale(1.1);
 }
 </style>
 </head>
@@ -185,6 +217,9 @@ body.dark .theme-toggle{
 <img src="icon.png">
 <h1>Sistema de Asistencia</h1>
 </div>
+
+<label>Seleccionar Fecha</label>
+<input type="date" id="fecha">
 
 <label>Asistencia Virtual</label>
 <input type="number" id="virtual">
@@ -237,31 +272,29 @@ const db=firebase.firestore();
 let adminActivo=false;
 let chart;
 let datosTrimestre={Q1:{virtual:0,presencial:0},Q2:{virtual:0,presencial:0},Q3:{virtual:0,presencial:0},Q4:{virtual:0,presencial:0}};
-const getFecha=()=>new Date().toISOString().split("T")[0];
 
 function toggleDark(){
-const body=document.body;
+document.body.classList.toggle("dark");
 const icon=document.querySelector(".icon");
-body.classList.toggle("dark");
-const isDark=body.classList.contains("dark");
-localStorage.setItem("modoOscuro",isDark);
-icon.textContent=isDark?"☀️":"🌙";
-}
-
-const modoGuardado=localStorage.getItem("modoOscuro");
-if(modoGuardado==="true"){
-document.body.classList.add("dark");
-document.querySelector(".icon").textContent="☀️";
+icon.textContent=document.body.classList.contains("dark")?"☀️":"🌙";
 }
 
 function guardar(){
 const v=parseInt(virtual.value);
 const p=parseInt(presencial.value);
+let fechaSeleccionada=fecha.value;
+
+if(!fechaSeleccionada){
+fechaSeleccionada=new Date().toISOString().split("T")[0];
+}
+
 if(isNaN(v)||isNaN(p)) return alert("Completa ambos campos");
-db.collection("asistencia").doc(getFecha()).set({virtual:v,presencial:p})
+
+db.collection("asistencia").doc(fechaSeleccionada).set({virtual:v,presencial:p})
 .then(()=>{
 virtual.value="";
 presencial.value="";
+fecha.value="";
 mostrar();
 });
 }
@@ -277,6 +310,7 @@ const mes=parseInt(fecha.split("-")[1]);
 const q=mes<=3?"Q1":mes<=6?"Q2":mes<=9?"Q3":"Q4";
 datosTrimestre[q].virtual+=data.virtual;
 datosTrimestre[q].presencial+=data.presencial;
+
 historial.innerHTML+=`
 <div class="historial-item">
 <strong>${fecha}</strong><br>
@@ -289,7 +323,6 @@ if(adminActivo) actualizarGrafico();
 }
 
 function eliminar(fecha){
-if(!confirm("¿Eliminar "+fecha+"?")) return;
 db.collection("asistencia").doc(fecha).delete().then(()=>mostrar());
 }
 
@@ -297,45 +330,44 @@ function actualizarGrafico(){
 const t=selectorTrimestre.value;
 const v=datosTrimestre[t].virtual;
 const p=datosTrimestre[t].presencial;
+const total=v+p;
+
 if(chart) chart.destroy();
+
 chart=new Chart(graficoPastel,{
-type:"pie",
+type:"doughnut",
 data:{
 labels:["Virtual","Presencial"],
 datasets:[{
 data:[v,p],
-backgroundColor:["#2563eb","#16a34a"]
+backgroundColor:["#4f46e5","#22c55e"],
+borderWidth:4
 }]
 },
 options:{
+cutout:"65%",
+animation:{duration:1800,easing:"easeOutBounce"},
 plugins:{
 legend:{position:"bottom"},
 datalabels:{
 color:"#fff",
-formatter:(value,ctx)=>{
-let sum=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
-if(sum===0) return "0%";
-let percentage=(value*100/sum).toFixed(1)+"%";
-return percentage;
+font:{weight:"bold",size:16},
+formatter:(value)=>{
+if(total===0) return "0%";
+return ((value*100)/total).toFixed(1)+"%";
 }
 }
-},
-animation:{duration:1200}
+}
 },
 plugins:[ChartDataLabels]
 });
 }
 
-function mostrarLogin(){
-loginBox.style.display="block";
-}
+function mostrarLogin(){ loginBox.style.display="block"; }
 
 function login(){
 const user=usuario.value.trim();
 const pass=password.value.trim();
-
-if(!user || !pass) return alert("Completa los campos");
-
 db.collection("usuarios")
 .where("usuario","==",user)
 .where("password","==",pass)
@@ -366,19 +398,13 @@ a.click();
 
 function importar(e){
 const archivo=e.target.files[0];
-if(!archivo) return;
 const reader=new FileReader();
 reader.onload=()=>{
-try{
 const datos=JSON.parse(reader.result);
 Object.keys(datos).forEach(fecha=>{
 db.collection("asistencia").doc(fecha).set(datos[fecha]);
 });
 mostrar();
-alert("Datos importados correctamente");
-}catch{
-alert("Archivo inválido");
-}
 };
 reader.readAsText(archivo);
 }
