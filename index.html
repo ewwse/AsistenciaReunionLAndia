@@ -234,8 +234,6 @@ projectId:"sistema-asistencia-a47c9"
 });
 
 const db=firebase.firestore();
-const USER="Landia";
-const PASS="Lapina1115";
 let adminActivo=false;
 let chart;
 let datosTrimestre={Q1:{virtual:0,presencial:0},Q2:{virtual:0,presencial:0},Q3:{virtual:0,presencial:0},Q4:{virtual:0,presencial:0}};
@@ -316,6 +314,7 @@ datalabels:{
 color:"#fff",
 formatter:(value,ctx)=>{
 let sum=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+if(sum===0) return "0%";
 let percentage=(value*100/sum).toFixed(1)+"%";
 return percentage;
 }
@@ -327,15 +326,30 @@ plugins:[ChartDataLabels]
 });
 }
 
-function mostrarLogin(){loginBox.style.display="block";}
+function mostrarLogin(){
+loginBox.style.display="block";
+}
 
 function login(){
-if(usuario.value===USER && password.value===PASS){
+const user=usuario.value.trim();
+const pass=password.value.trim();
+
+if(!user || !pass) return alert("Completa los campos");
+
+db.collection("usuarios")
+.where("usuario","==",user)
+.where("password","==",pass)
+.get()
+.then(snapshot=>{
+if(!snapshot.empty){
 adminPanel.style.display="block";
 loginBox.style.display="none";
 adminActivo=true;
 mostrar();
-}else alert("Credenciales incorrectas");
+}else{
+alert("Credenciales incorrectas");
+}
+});
 }
 
 function exportar(){
@@ -362,7 +376,9 @@ db.collection("asistencia").doc(fecha).set(datos[fecha]);
 });
 mostrar();
 alert("Datos importados correctamente");
-}catch{alert("Archivo inválido");}
+}catch{
+alert("Archivo inválido");
+}
 };
 reader.readAsText(archivo);
 }
