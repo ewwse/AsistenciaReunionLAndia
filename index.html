@@ -13,6 +13,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <style>
+/* === TUS ESTILOS ORIGINALES SIN CAMBIAR === */
 :root{
 --primary:#6366f1;
 --accent:#06b6d4;
@@ -153,7 +154,7 @@ canvas{margin-top:20px;}
 <button class="primary" onclick="guardar()">Guardar Asistencia</button>
 <button class="secondary" onclick="mostrarLogin()">Zona Administrativa</button>
 
-<!-- ORDEN -->
+<!-- NUEVO: ORDEN -->
 <select onchange="cambiarOrden(this.value)">
 <option value="desc">Más reciente</option>
 <option value="asc">Más antiguo</option>
@@ -248,6 +249,7 @@ snapshot.forEach(doc=>{
 lista.push({fecha:doc.id,...doc.data()});
 });
 
+/* ORDEN */
 lista.sort((a,b)=>{
 return ordenActual==="asc"
 ? new Date(a.fecha)-new Date(b.fecha)
@@ -265,6 +267,7 @@ const q=mes<=3?"Q1":mes<=6?"Q2":mes<=9?"Q3":"Q4";
 datosTrimestre[q].virtual+=Number(data.virtual);
 datosTrimestre[q].presencial+=Number(data.presencial);
 
+/* CORREGIDO + EDITAR */
 historial.innerHTML+=`
 <div class="historial-item">
 <strong>${fecha}</strong><br>
@@ -315,8 +318,6 @@ options:{
 plugins:{
 legend:{display:false},
 datalabels:{
-anchor:"end",
-align:"top",
 formatter:(value)=> total===0?"0%":((value*100)/total).toFixed(1)+"%"
 }
 }
