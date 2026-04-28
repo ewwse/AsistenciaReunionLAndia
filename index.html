@@ -533,9 +533,12 @@ lista.push({fecha:doc.id,...doc.data()});
 
 /* ORDEN REAL */
 lista.sort((a,b)=>{
+const fechaA = new Date(a.fecha);
+const fechaB = new Date(b.fecha);
+
 return ordenActual==="asc"
-? (a.timestamp||0)-(b.timestamp||0)
-: (b.timestamp||0)-(a.timestamp||0);
+? fechaA - fechaB
+: fechaB - fechaA;
 });
 
 lista.forEach(item=>{
