@@ -13,7 +13,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <style>
-/* === TUS ESTILOS ORIGINALES SIN CAMBIAR === */
+/* === ESTILOS OPTIMIZADOS Y CORREGIDOS === */
+
 :root{
 --primary:#6366f1;
 --accent:#06b6d4;
@@ -23,6 +24,7 @@
 --card:rgba(255,255,255,0.65);
 --text:#0f172a;
 --gray:#64748b;
+
 /* Botones */
 --btn-login1:#4df50bbe;
 --btn-login2:#16f9c0;
@@ -42,11 +44,28 @@
 --btn-eliminar1:#a70303;
 --btn-eliminar2:#dc267b;
 
---orden-borde:#ff056d; /* azul suave */
+--orden-borde:#ff056d;
 --orden-fondo:rgba(14,165,233,0.1);
 
+--btn-file1:#0ea5e9;
+--btn-file2:#22c55e;
+
+/* Trimestres */
+--tri-Q1:#1df3fa;
+--tri-Q2:#00ff00d8;
+--tri-Q3:#fcf950e7;
+--tri-Q4:#ff0000c5;
+
+--tri-fondo:rgba(139,92,246,0.15);
 }
 
+/* Trimestre activo dinámico */
+#tQ1.trimestre-activo{ --tri-borde:var(--tri-Q1); }
+#tQ2.trimestre-activo{ --tri-borde:var(--tri-Q2); }
+#tQ3.trimestre-activo{ --tri-borde:var(--tri-Q3); }
+#tQ4.trimestre-activo{ --tri-borde:var(--tri-Q4); }
+
+/* 🌙 MODO OSCURO */
 body.dark{
 --primary:#8b5cf6;
 --accent:#22d3ee;
@@ -57,8 +76,28 @@ body.dark{
 --text:#f1f5f9;
 --gray:#94a3b8;
 
+
+
+/* colores más suaves */
+--tri-Q1:#22d3ee;
+--tri-Q2:#4ade80;
+--tri-Q3:#fde047;
+--tri-Q4:#f82a2a;
 }
-*{margin:0;padding:0;box-sizing:border-box;}
+body.dark .trimestre-activo{
+border:2px solid var(--tri-borde);
+background:linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02));
+color:var(--tri-borde);
+box-shadow:0 0 12px var(--tri-borde);
+}
+/* RESET */
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+/* BODY */
 body{
 font-family:'Segoe UI',sans-serif;
 background:var(--bg);
@@ -70,6 +109,8 @@ min-height:100vh;
 padding:20px;
 transition:.6s;
 }
+
+/* CARD */
 .card{
 background:var(--card);
 backdrop-filter:blur(35px);
@@ -79,6 +120,8 @@ padding:32px;
 border-radius:28px;
 box-shadow:0 40px 80px rgba(0,0,0,0.18);
 }
+
+/* HEADER */
 .header{
 display:flex;
 align-items:center;
@@ -86,8 +129,17 @@ justify-content:center;
 gap:14px;
 margin-bottom:25px;
 }
-.header img{width:42px;}
-label{font-size:14px;color:var(--gray);}
+
+.header img{
+width:42px;
+}
+
+/* FORM */
+label{
+font-size:14px;
+color:var(--gray);
+}
+
 input,select{
 width:100%;
 padding:15px;
@@ -97,25 +149,15 @@ border:1px solid rgba(255,255,255,0.3);
 font-size:15px;
 background:rgba(255,255,255,0.6);
 }
-body.dark input, body.dark select{
+
+body.dark input,
+body.dark select{
 background:rgba(30,41,59,0.6);
 border:1px solid #334155;
 color:#fff;
-
-.orden-toggle button{
-background:rgba(30,41,59,0.6);
-color:white;
 }
 
-}
-
-/* 🔥 ACTIVO */
-.orden-activo{
-border:2px solid var(--orden-borde);
-background:var(--orden-fondo);
-color:var(--orden-borde);
-}
-
+/* BOTONES */
 button{
 width:100%;
 padding:15px;
@@ -132,6 +174,7 @@ button:hover{
 transform:scale(1.05);
 opacity:0.9;
 }
+
 .primary{
 background:linear-gradient(135deg,var(--btn-guardar1),var(--btn-guardar2));
 color:white;
@@ -141,6 +184,7 @@ color:white;
 background:linear-gradient(135deg,var(--btn-admin1),var(--btn-admin2));
 color:white;
 }
+
 .danger{
 background:linear-gradient(135deg,#ef4444,#dc2626);
 color:white;
@@ -150,7 +194,52 @@ font-size:12px;
 margin-top:8px;
 }
 
-.login-box,.admin-panel{display:none;}
+.login-btn{
+background:linear-gradient(135deg,var(--btn-login1),var(--btn-login2));
+color:white;
+}
+
+.export-btn{
+background:linear-gradient(135deg,var(--btn-exportar1),var(--btn-exportar2));
+color:white;
+}
+
+.edit-btn{
+background:linear-gradient(135deg,var(--btn-editar1),var(--btn-editar2));
+color:white;
+padding:6px 10px;
+border-radius:10px;
+font-size:12px;
+margin-top:8px;
+}
+
+/* FILE */
+.file-btn{
+width:100%;
+padding:12px;
+border:none;
+border-radius:18px;
+cursor:pointer;
+font-weight:600;
+background:linear-gradient(135deg,var(--btn-file1),var(--btn-file2));
+color:white;
+transition:0.3s;
+}
+
+.file-btn:hover{
+transform:scale(1.03);
+opacity:0.9;
+}
+
+#fileName{
+display:block;
+margin-top:8px;
+font-size:13px;
+color:var(--gray);
+text-align:center;
+}
+
+/* HISTORIAL */
 .historial{
 margin-top:20px;
 max-height:240px;
@@ -159,7 +248,11 @@ padding:15px;
 border-radius:20px;
 background:rgba(255,255,255,0.5);
 }
-body.dark .historial{background:rgba(30,41,59,0.6);}
+
+body.dark .historial{
+background:rgba(30,41,59,0.6);
+}
+
 .historial-item{
 padding:16px;
 margin-bottom:12px;
@@ -167,7 +260,12 @@ background:white;
 border-radius:18px;
 font-size:14px;
 }
-body.dark .historial-item{background:#1e2733;}
+
+body.dark .historial-item{
+background:#1e2733;
+}
+
+/* TOGGLE TEMA */
 .theme-toggle{
 position:fixed;
 top:20px;
@@ -181,36 +279,8 @@ color:var(--primary);
 font-size:20px;
 cursor:pointer;
 }
-canvas{margin-top:20px;}
 
-.edit-btn{
-background:linear-gradient(135deg,#23c8e6f3,#29f033c5);
-color:white;
-padding:6px 10px;
-border-radius:10px;
-font-size:12px;
-margin-top:8px;
-}
-
-.export-btn{
-background:linear-gradient(135deg,var(--btn-exportar1),var(--btn-exportar2));
-color:white;
-}
-
-.danger{
-background:linear-gradient(135deg,var(--btn-eliminar1),var(--btn-eliminar2));
-color:white;
-padding:6px 10px;
-border-radius:10px;
-font-size:12px;
-margin-top:8px;
-}
-
-.login-btn{
-background:linear-gradient(135deg,var(--btn-login1),var(--btn-login2));
-color:white;
-}
-
+/* ORDEN */
 .orden-toggle{
 display:flex;
 gap:10px;
@@ -227,6 +297,64 @@ background:rgba(255,255,255,0.5);
 transition:0.3s;
 }
 
+body.dark .orden-toggle button{
+background:rgba(30,41,59,0.6);
+color:white;
+}
+
+/* ACTIVO ORDEN */
+.orden-activo{
+border:2px solid var(--orden-borde);
+background:var(--orden-fondo);
+color:var(--orden-borde);
+}
+
+/* ACTIVO ORDEN EN DARK (mejor visual) */
+body.dark .orden-activo{
+background:rgba(255,255,255,0.05);
+border:2px solid var(--orden-borde);
+color:var(--orden-borde);
+}
+
+/* TRIMESTRE */
+.trimestre-toggle{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+margin-top:10px;
+}
+
+.trimestre-toggle button{
+padding:10px;
+border-radius:14px;
+border:2px solid transparent;
+cursor:pointer;
+background:rgba(255,255,255,0.5);
+transition:0.3s;
+font-weight:500;
+}
+
+body.dark .trimestre-toggle button{
+background:rgba(30,41,59,0.6);
+color:white;
+}
+
+/* ACTIVO TRIMESTRE */
+.trimestre-activo{
+border:2px solid var(--tri-borde);
+background:var(--tri-fondo);
+color:var(--tri-borde);
+}
+
+/* OTROS */
+canvas{
+margin-top:20px;
+}
+
+.login-box,
+.admin-panel{
+display:none;
+}
 </style>
 </head>
 
@@ -265,14 +393,18 @@ transition:0.3s;
 
 <div class="admin-panel" id="adminPanel">
 <button class="export-btn" onclick="exportar()">Descargar .txt</button>
-<input type="file" accept=".txt,.json" onchange="importar(event)">
+<input type="file" id="fileInput" accept=".txt,.json" onchange="importar(event)" hidden>
+<button class="file-btn" onclick="document.getElementById('fileInput').click()">
+Seleccionar archivo
+</button>
+<span id="fileName">Ningún archivo seleccionado</span>
 <label>Seleccionar Trimestre</label>
-<select id="selectorTrimestre" onchange="actualizarGrafico()">
-<option value="Q1">Enero - Marzo</option>
-<option value="Q2">Abril - Junio</option>
-<option value="Q3">Julio - Septiembre</option>
-<option value="Q4">Octubre - Diciembre</option>
-</select>
+<div class="trimestre-toggle">
+<button onclick="cambiarTrimestre('Q1')" id="tQ1">Ene - Mar</button>
+<button onclick="cambiarTrimestre('Q2')" id="tQ2">Abr - Jun</button>
+<button onclick="cambiarTrimestre('Q3')" id="tQ3">Jul - Sep</button>
+<button onclick="cambiarTrimestre('Q4')" id="tQ4">Oct - Dic</button>
+</div>
 <canvas id="graficoPastel"></canvas>
 </div>
 
@@ -285,7 +417,6 @@ transition:0.3s;
 </button>
 
 <script>
-
 firebase.initializeApp({
 apiKey:"AIzaSyBs3r8RFztg6NxUbkZmaSag2CxfF7phvG8",
 authDomain:"sistema-asistencia-a47c9.firebaseapp.com",
@@ -297,6 +428,18 @@ const db=firebase.firestore();
 let adminActivo=false;
 let chart;
 let ordenActual="desc";
+let trimestreActual="Q1";
+
+/* REFERENCIAS SEGURAS */
+const btnReciente = document.getElementById("btnReciente");
+const btnAntiguo = document.getElementById("btnAntiguo");
+
+const tQ1 = document.getElementById("tQ1");
+const tQ2 = document.getElementById("tQ2");
+const tQ3 = document.getElementById("tQ3");
+const tQ4 = document.getElementById("tQ4");
+
+const graficoPastel = document.getElementById("graficoPastel");
 
 let datosTrimestre={
 Q1:{virtual:0,presencial:0},
@@ -305,9 +448,9 @@ Q3:{virtual:0,presencial:0},
 Q4:{virtual:0,presencial:0}
 };
 
+/* 🌙 MODO OSCURO */
 function toggleDark(){
 document.body.classList.toggle("dark");
-
 const icon=document.querySelector(".icon");
 
 if(document.body.classList.contains("dark")){
@@ -319,14 +462,24 @@ localStorage.setItem("modo","light");
 }
 }
 
+/* 🎨 COLOR DINÁMICO TRIMESTRE */
+function getColorPorTrimestre(t){
+switch(t){
+case "Q1": return "#22c55e";
+case "Q2": return "#eab308";
+case "Q3": return "#0ea5e9";
+case "Q4": return "#ef4444";
+default: return "#6366f1";
+}
+}
+
+/* 🔄 ORDEN */
 function cambiarOrden(v){
 ordenActual=v;
 
-/* limpiar */
 btnReciente.classList.remove("orden-activo");
 btnAntiguo.classList.remove("orden-activo");
 
-/* activar */
 if(v==="desc"){
 btnReciente.classList.add("orden-activo");
 }else{
@@ -336,6 +489,7 @@ btnAntiguo.classList.add("orden-activo");
 mostrar();
 }
 
+/* 💾 GUARDAR */
 function guardar(){
 const v=parseInt(virtual.value);
 const p=parseInt(presencial.value);
@@ -344,7 +498,11 @@ let fechaSeleccionada=fecha.value||new Date().toISOString().split("T")[0];
 if(isNaN(v)||isNaN(p)) return alert("Completa ambos campos");
 
 db.collection("asistencia").doc(fechaSeleccionada)
-.set({virtual:v,presencial:p})
+.set({
+virtual:v,
+presencial:p,
+timestamp:Date.now()
+})
 .then(()=>{
 virtual.value="";
 presencial.value="";
@@ -353,6 +511,7 @@ mostrar();
 });
 }
 
+/* 📋 MOSTRAR */
 function mostrar(){
 
 historial.innerHTML="";
@@ -372,11 +531,11 @@ snapshot.forEach(doc=>{
 lista.push({fecha:doc.id,...doc.data()});
 });
 
-/* ORDEN */
+/* ORDEN REAL */
 lista.sort((a,b)=>{
 return ordenActual==="asc"
-? new Date(a.fecha)-new Date(b.fecha)
-: new Date(b.fecha)-new Date(a.fecha);
+? (a.timestamp||0)-(b.timestamp||0)
+: (b.timestamp||0)-(a.timestamp||0);
 });
 
 lista.forEach(item=>{
@@ -390,7 +549,6 @@ const q=mes<=3?"Q1":mes<=6?"Q2":mes<=9?"Q3":"Q4";
 datosTrimestre[q].virtual+=Number(data.virtual);
 datosTrimestre[q].presencial+=Number(data.presencial);
 
-/* CORREGIDO + EDITAR */
 historial.innerHTML+=`
 <div class="historial-item">
 <strong>${fecha}</strong><br>
@@ -406,14 +564,13 @@ Editar
 
 </div>
 `;
-
 });
 
 if(adminActivo) actualizarGrafico();
-
 });
 }
 
+/* ✏️ EDITAR */
 function editar(f,v,p){
 fecha.value=f;
 virtual.value=v;
@@ -421,12 +578,30 @@ presencial.value=p;
 window.scrollTo({top:0,behavior:"smooth"});
 }
 
+/* 🗑️ ELIMINAR */
 function eliminar(fecha){
 db.collection("asistencia").doc(fecha).delete().then(()=>mostrar());
 }
 
+/* 📊 CAMBIAR TRIMESTRE */
+function cambiarTrimestre(t){
+trimestreActual=t;
+
+/* color dinámico */
+
+tQ1.classList.remove("trimestre-activo");
+tQ2.classList.remove("trimestre-activo");
+tQ3.classList.remove("trimestre-activo");
+tQ4.classList.remove("trimestre-activo");
+
+document.getElementById("t"+t).classList.add("trimestre-activo");
+
+actualizarGrafico();
+}
+
+/* 📊 GRÁFICO */
 function actualizarGrafico(){
-const t=selectorTrimestre.value;
+const t=trimestreActual;
 const v=datosTrimestre[t].virtual;
 const p=datosTrimestre[t].presencial;
 const total=v+p;
@@ -437,7 +612,11 @@ chart=new Chart(graficoPastel,{
 type:"bar",
 data:{
 labels:["Virtual","Presencial"],
-datasets:[{data:[v,p],backgroundColor:["#6366f1","#22c55e"],borderRadius:14}]
+datasets:[{
+data:[v,p],
+backgroundColor:["#6366f1","#22c55e"],
+borderRadius:14
+}]
 },
 options:{
 plugins:{
@@ -451,6 +630,7 @@ plugins:[ChartDataLabels]
 });
 }
 
+/* 🔐 LOGIN */
 function mostrarLogin(){
 loginBox.style.display="block";
 }
@@ -473,6 +653,7 @@ mostrar();
 });
 }
 
+/* 📤 EXPORTAR */
 function exportar(){
 db.collection("asistencia").get().then(snapshot=>{
 const datos={};
@@ -486,9 +667,12 @@ a.click();
 });
 }
 
+/* 📥 IMPORTAR */
 function importar(e){
 const archivo=e.target.files[0];
 if(!archivo) return;
+
+document.getElementById("fileName").textContent=archivo.name;
 
 const reader=new FileReader();
 
@@ -507,7 +691,8 @@ if(registro && registro.virtual!=null && registro.presencial!=null){
 const ref=db.collection("asistencia").doc(fecha);
 batch.set(ref,{
 virtual:Number(registro.virtual),
-presencial:Number(registro.presencial)
+presencial:Number(registro.presencial),
+timestamp:Date.now()
 });
 }
 });
@@ -524,8 +709,14 @@ alert("Archivo inválido: "+error.message);
 reader.readAsText(archivo);
 }
 
+/* 🚀 INICIO */
 mostrar();
 
+/* estado inicial UI */
+btnReciente.classList.add("orden-activo");
+tQ1.classList.add("trimestre-activo");
+
+/* modo guardado */
 const modoGuardado=localStorage.getItem("modo");
 
 if(modoGuardado==="dark"){
@@ -534,7 +725,6 @@ document.querySelector(".icon").textContent="☀️";
 }else{
 document.querySelector(".icon").textContent="🌙";
 }
-
 </script>
 
 </body>
