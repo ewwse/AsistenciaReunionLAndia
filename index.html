@@ -208,6 +208,20 @@ Q3:{virtual:0,presencial:0},
 Q4:{virtual:0,presencial:0}
 };
 
+function toggleDark(){
+document.body.classList.toggle("dark");
+
+const icon=document.querySelector(".icon");
+
+if(document.body.classList.contains("dark")){
+icon.textContent="☀️";
+localStorage.setItem("modo","dark");
+}else{
+icon.textContent="🌙";
+localStorage.setItem("modo","light");
+}
+}
+
 function cambiarOrden(v){
 ordenActual=v;
 mostrar();
@@ -400,6 +414,15 @@ reader.readAsText(archivo);
 }
 
 mostrar();
+
+const modoGuardado=localStorage.getItem("modo");
+
+if(modoGuardado==="dark"){
+document.body.classList.add("dark");
+document.querySelector(".icon").textContent="☀️";
+}else{
+document.querySelector(".icon").textContent="🌙";
+}
 
 </script>
 
