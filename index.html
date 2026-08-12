@@ -1,31 +1,44 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Sistema de Asistencia</title>
 
 <link rel="icon" type="image/png" href="Icon2.png">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
+
 <style>
-/* === ESTILOS OPTIMIZADOS Y CORREGIDOS === */
+
+/* =========================================================
+   VARIABLES
+========================================================= */
 
 :root{
+
 --primary:#6366f1;
 --accent:#06b6d4;
 --success:#22c55e;
 --danger:#ef4444;
+
 --bg:linear-gradient(135deg,#eef2ff,#f8fafc);
 --card:rgba(255,255,255,0.65);
+
 --text:#0f172a;
 --gray:#64748b;
 
+
 /* Botones */
+
 --btn-login1:#4df50bbe;
 --btn-login2:#16f9c0;
 
@@ -50,685 +63,2556 @@
 --btn-file1:#0ea5e9;
 --btn-file2:#22c55e;
 
+
 /* Trimestres */
+
 --tri-Q1:#1df3fa;
 --tri-Q2:#00ff00d8;
 --tri-Q3:#fcf950e7;
 --tri-Q4:#ff0000c5;
 
 --tri-fondo:rgba(139,92,246,0.15);
+
 }
 
-/* Trimestre activo dinámico */
-#tQ1.trimestre-activo{ --tri-borde:var(--tri-Q1); }
-#tQ2.trimestre-activo{ --tri-borde:var(--tri-Q2); }
-#tQ3.trimestre-activo{ --tri-borde:var(--tri-Q3); }
-#tQ4.trimestre-activo{ --tri-borde:var(--tri-Q4); }
 
-/* 🌙 MODO OSCURO */
+/* =========================================================
+   TRIMESTRE ACTIVO
+========================================================= */
+
+#tQ1.trimestre-activo{
+--tri-borde:var(--tri-Q1);
+}
+
+#tQ2.trimestre-activo{
+--tri-borde:var(--tri-Q2);
+}
+
+#tQ3.trimestre-activo{
+--tri-borde:var(--tri-Q3);
+}
+
+#tQ4.trimestre-activo{
+--tri-borde:var(--tri-Q4);
+}
+
+
+/* =========================================================
+   MODO OSCURO
+========================================================= */
+
 body.dark{
+
+--Borde:#94a3b8;
 --primary:#8b5cf6;
 --accent:#22d3ee;
 --success:#4ade80;
 --danger:#f87171;
+
 --bg:linear-gradient(135deg,#0f172a,#1e293b);
 --card:rgba(30,41,59,0.75);
+
 --text:#f1f5f9;
 --gray:#94a3b8;
 
 
+/* Trimestres */
 
-/* colores más suaves */
 --tri-Q1:#22d3ee;
 --tri-Q2:#4ade80;
 --tri-Q3:#fde047;
 --tri-Q4:#f82a2a;
+
 }
+
+
 body.dark .trimestre-activo{
+
 border:2px solid var(--tri-borde);
-background:linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02));
+
+background:
+linear-gradient(
+135deg,
+rgba(255,255,255,0.12),
+rgba(255,255,255,0.02)
+);
+
 color:var(--tri-borde);
-box-shadow:0 0 12px var(--tri-borde);
+
+box-shadow:
+0 0 12px var(--tri-borde);
+
 }
-/* RESET */
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
 *{
+
 margin:0;
 padding:0;
 box-sizing:border-box;
+
 }
 
-/* BODY */
+
+/* =========================================================
+   BODY
+========================================================= */
+
 body{
+
 font-family:'Segoe UI',sans-serif;
+
 background:var(--bg);
+
 color:var(--text);
+
 display:flex;
+
 justify-content:center;
+
 align-items:center;
+
 min-height:100vh;
+
 padding:20px;
+
 transition:.6s;
+
 }
 
-/* CARD */
+
+/* =========================================================
+   CARD
+========================================================= */
+
 .card{
+
 background:var(--card);
+
 backdrop-filter:blur(35px);
+
 width:100%;
+
 max-width:620px;
+
 padding:32px;
+
 border-radius:28px;
-box-shadow:0 40px 80px rgba(0,0,0,0.18);
+
+box-shadow:
+0 40px 80px rgba(0,0,0,0.18);
+
 }
 
-/* HEADER */
+
+/* =========================================================
+   HEADER
+========================================================= */
+
 .header{
+
 display:flex;
+
 align-items:center;
+
 justify-content:center;
+
 gap:14px;
+
 margin-bottom:25px;
+
 }
 
 .header img{
+
 width:42px;
+
 }
 
-/* FORM */
+
+/* =========================================================
+   FORM
+========================================================= */
+
 label{
+
 font-size:14px;
+
 color:var(--gray);
+
 }
 
-input,select{
+
+input,
+select{
+
 width:100%;
+
 padding:15px;
+
 margin:10px 0 20px 0;
+
 border-radius:18px;
+
 border:1px solid rgba(255,255,255,0.3);
+
 font-size:15px;
+
 background:rgba(255,255,255,0.6);
+
 }
+
 
 body.dark input,
 body.dark select{
+
 background:rgba(30,41,59,0.6);
+
 border:1px solid #334155;
+
 color:#fff;
+
 }
 
-/* BOTONES */
-button{
-width:100%;
-padding:15px;
-border:none;
-border-radius:20px;
-font-weight:600;
-cursor:pointer;
-margin-top:10px;
-font-size:15px;
-transition:0.3s ease;
+
+/* =========================================================
+   INPUT TOTAL
+========================================================= */
+
+#total{
+
+font-weight:bold;
+
+font-size:18px;
+
+background:rgba(30,41,59,0.6);
+
+color:var(--primary);
+
+border:2px solid var(--Borde);
+
 }
+
+
+/* =========================================================
+   BOTONES
+========================================================= */
+
+button{
+
+width:100%;
+
+padding:15px;
+
+border:none;
+
+border-radius:20px;
+
+font-weight:600;
+
+cursor:pointer;
+
+margin-top:10px;
+
+font-size:15px;
+
+transition:0.3s ease;
+
+}
+
 
 button:hover{
+
 transform:scale(1.05);
+
 opacity:0.9;
+
 }
+
 
 .primary{
-background:linear-gradient(135deg,var(--btn-guardar1),var(--btn-guardar2));
+
+background:
+linear-gradient(
+135deg,
+var(--btn-guardar1),
+var(--btn-guardar2)
+);
+
 color:white;
+
 }
+
 
 .secondary{
-background:linear-gradient(135deg,var(--btn-admin1),var(--btn-admin2));
+
+background:
+linear-gradient(
+135deg,
+var(--btn-admin1),
+var(--btn-admin2)
+);
+
 color:white;
+
 }
+
 
 .danger{
-background:linear-gradient(135deg,#ef4444,#dc2626);
+
+background:
+linear-gradient(
+135deg,
+#ef4444,
+#dc2626
+);
+
 color:white;
+
 padding:6px 10px;
+
 border-radius:10px;
+
 font-size:12px;
+
 margin-top:8px;
+
 }
+
 
 .login-btn{
-background:linear-gradient(135deg,var(--btn-login1),var(--btn-login2));
+
+background:
+linear-gradient(
+135deg,
+var(--btn-login1),
+var(--btn-login2)
+);
+
 color:white;
+
 }
+
 
 .export-btn{
-background:linear-gradient(135deg,var(--btn-exportar1),var(--btn-exportar2));
+
+background:
+linear-gradient(
+135deg,
+var(--btn-exportar1),
+var(--btn-exportar2)
+);
+
 color:white;
+
 }
+
 
 .edit-btn{
-background:linear-gradient(135deg,var(--btn-editar1),var(--btn-editar2));
+
+background:
+linear-gradient(
+135deg,
+var(--btn-editar1),
+var(--btn-editar2)
+);
+
 color:white;
+
 padding:6px 10px;
+
 border-radius:10px;
+
 font-size:12px;
+
 margin-top:8px;
+
 }
 
-/* FILE */
+
+/* =========================================================
+   FILE
+========================================================= */
+
 .file-btn{
+
 width:100%;
+
 padding:12px;
+
 border:none;
+
 border-radius:18px;
+
 cursor:pointer;
+
 font-weight:600;
-background:linear-gradient(135deg,var(--btn-file1),var(--btn-file2));
+
+background:
+linear-gradient(
+135deg,
+var(--btn-file1),
+var(--btn-file2)
+);
+
 color:white;
+
 transition:0.3s;
+
 }
+
 
 .file-btn:hover{
+
 transform:scale(1.03);
+
 opacity:0.9;
+
 }
+
 
 #fileName{
+
 display:block;
+
 margin-top:8px;
+
 font-size:13px;
+
 color:var(--gray);
+
 text-align:center;
+
 }
 
-/* HISTORIAL */
-.historial{
+
+/* =========================================================
+   RESUMEN TOTAL
+========================================================= */
+
+.resumen{
+
 margin-top:20px;
-max-height:240px;
-overflow-y:auto;
-padding:15px;
-border-radius:20px;
-background:rgba(255,255,255,0.5);
+
+padding:20px;
+
+border-radius:22px;
+
+background:
+linear-gradient(
+135deg,
+rgba(30,41,59,0.18),
+rgba(30,41,59,0.12)
+);
+
+border:2px solid rgba(30,41,59,0.6);
+
+text-align:center;
+
 }
+
+
+.resumen-titulo{
+
+font-size:18px;
+
+font-weight:bold;
+
+margin-bottom:15px;
+
+}
+
+
+.resumen-grid{
+
+display:grid;
+
+grid-template-columns:
+repeat(3,1fr);
+
+gap:10px;
+
+}
+
+
+.resumen-box{
+
+padding:12px;
+
+border-radius:15px;
+
+background:rgba(255,255,255,0.45);
+
+}
+
+
+body.dark .resumen-box{
+
+background:rgba(15,23,42,0.55);
+
+}
+
+
+.resumen-box span{
+
+display:block;
+
+font-size:12px;
+
+color:var(--gray);
+
+margin-bottom:5px;
+
+}
+
+
+.resumen-box strong{
+
+font-size:22px;
+
+}
+
+
+/* =========================================================
+   HISTORIAL
+========================================================= */
+
+.historial{
+
+margin-top:20px;
+
+max-height:240px;
+
+overflow-y:auto;
+
+padding:15px;
+
+border-radius:20px;
+
+background:rgba(255,255,255,0.5);
+
+}
+
 
 body.dark .historial{
+
 background:rgba(30,41,59,0.6);
+
 }
+
 
 .historial-item{
+
 padding:16px;
+
 margin-bottom:12px;
+
 background:white;
+
 border-radius:18px;
+
 font-size:14px;
+
 }
+
 
 body.dark .historial-item{
+
 background:#1e2733;
+
 }
 
-/* TOGGLE TEMA */
-.theme-toggle{
-position:fixed;
-top:20px;
-right:20px;
-width:50px;
-height:50px;
-border-radius:50%;
-border:none;
-background:var(--card);
+
+.historial-total{
+
+margin-top:6px;
+
+font-weight:bold;
+
 color:var(--primary);
-font-size:20px;
-cursor:pointer;
+
 }
 
-/* ORDEN */
-.orden-toggle{
-display:flex;
-gap:10px;
-margin-top:10px;
+
+/* =========================================================
+   TOGGLE TEMA
+========================================================= */
+
+.theme-toggle{
+
+position:fixed;
+
+top:20px;
+
+right:20px;
+
+width:50px;
+
+height:50px;
+
+border-radius:50%;
+
+border:none;
+
+background:var(--card);
+
+color:var(--primary);
+
+font-size:20px;
+
+cursor:pointer;
+
 }
+
+
+/* =========================================================
+   ORDEN
+========================================================= */
+
+.orden-toggle{
+
+display:flex;
+
+gap:10px;
+
+margin-top:10px;
+
+}
+
 
 .orden-toggle button{
+
 flex:1;
+
 padding:10px;
+
 border-radius:14px;
+
 border:2px solid transparent;
+
 cursor:pointer;
+
 background:rgba(255,255,255,0.5);
+
 transition:0.3s;
+
 }
+
 
 body.dark .orden-toggle button{
+
 background:rgba(30,41,59,0.6);
+
 color:white;
+
 }
+
 
 /* ACTIVO ORDEN */
+
 .orden-activo{
+
 border:2px solid var(--orden-borde);
+
 background:var(--orden-fondo);
+
 color:var(--orden-borde);
+
 }
 
-/* ACTIVO ORDEN EN DARK (mejor visual) */
+
+/* DARK */
+
 body.dark .orden-activo{
+
 background:rgba(255,255,255,0.05);
+
 border:2px solid var(--orden-borde);
+
 color:var(--orden-borde);
+
 }
 
-/* TRIMESTRE */
+
+/* =========================================================
+   TRIMESTRE
+========================================================= */
+
 .trimestre-toggle{
+
 display:grid;
-grid-template-columns:repeat(2,1fr);
+
+grid-template-columns:
+repeat(2,1fr);
+
 gap:10px;
+
 margin-top:10px;
+
 }
+
 
 .trimestre-toggle button{
+
 padding:10px;
+
 border-radius:14px;
+
 border:2px solid transparent;
+
 cursor:pointer;
+
 background:rgba(255,255,255,0.5);
+
 transition:0.3s;
+
 font-weight:500;
+
 }
+
 
 body.dark .trimestre-toggle button{
+
 background:rgba(30,41,59,0.6);
+
 color:white;
+
 }
 
-/* ACTIVO TRIMESTRE */
+
+/* ACTIVO */
+
 .trimestre-activo{
+
 border:2px solid var(--tri-borde);
+
 background:var(--tri-fondo);
+
 color:var(--tri-borde);
+
 }
 
-/* OTROS */
+
+/* =========================================================
+   CANVAS
+========================================================= */
+
 canvas{
+
 margin-top:20px;
+
 }
+
+
+/* =========================================================
+   LOGIN / ADMIN
+========================================================= */
 
 .login-box,
 .admin-panel{
+
 display:none;
+
 }
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:500px){
+
+.card{
+
+padding:20px;
+
+}
+
+.resumen-grid{
+
+grid-template-columns:1fr;
+
+}
+
+}
+
 </style>
+
 </head>
+
 
 <body>
 
+
 <div class="card">
 
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
 <div class="header">
+
 <img src="Icon2.png">
+
 <h1>Sistema de Asistencia</h1>
+
 </div>
+
+
+<!-- =====================================================
+     FECHA
+===================================================== -->
 
 <label>Seleccionar Fecha</label>
-<input type="date" id="fecha">
+
+<input
+type="date"
+id="fecha"
+>
+
+
+<!-- =====================================================
+     VIRTUAL
+===================================================== -->
 
 <label>Asistencia Virtual</label>
-<input type="number" id="virtual">
+
+<input
+type="number"
+id="virtual"
+min="0"
+placeholder="Cantidad virtual"
+>
+
+
+<!-- =====================================================
+     PRESENCIAL
+===================================================== -->
 
 <label>Asistencia Presencial</label>
-<input type="number" id="presencial">
 
-<button class="primary" onclick="guardar()">Guardar Asistencia</button>
-<button class="secondary" onclick="mostrarLogin()">Zona Administrativa</button>
+<input
+type="number"
+id="presencial"
+min="0"
+placeholder="Cantidad presencial"
+>
 
-<!-- NUEVO: ORDEN -->
+
+<!-- =====================================================
+     TOTAL DEL DÍA
+===================================================== -->
+
+<label>Total de Asistencia</label>
+
+<input
+type="number"
+id="total"
+readonly
+placeholder="Total automático"
+>
+
+
+<!-- =====================================================
+     GUARDAR
+===================================================== -->
+
+<button
+class="primary"
+onclick="guardar()"
+>
+
+Guardar Asistencia
+
+</button>
+
+
+<!-- =====================================================
+     ZONA ADMINISTRATIVA
+===================================================== -->
+
+<button
+class="secondary"
+onclick="mostrarLogin()"
+>
+
+Zona Administrativa
+
+</button>
+
+
+<!-- =====================================================
+     ORDEN
+===================================================== -->
+
 <div class="orden-toggle">
-<button onclick="cambiarOrden('desc')" id="btnReciente">Más reciente</button>
-<button onclick="cambiarOrden('asc')" id="btnAntiguo">Más antiguo</button>
+
+<button
+onclick="cambiarOrden('desc')"
+id="btnReciente"
+>
+
+Más reciente
+
+</button>
+
+
+<button
+onclick="cambiarOrden('asc')"
+id="btnAntiguo"
+>
+
+Más antiguo
+
+</button>
+
 </div>
 
-<div class="login-box" id="loginBox">
-<input type="text" id="usuario" placeholder="Usuario">
-<input type="password" id="password" placeholder="Contraseña">
-<button class="login-btn" onclick="login()">Entrar</button>
-</div>
 
-<div class="admin-panel" id="adminPanel">
-<button class="export-btn" onclick="exportar()">Descargar .txt</button>
-<input type="file" id="fileInput" accept=".txt,.json" onchange="importar(event)" hidden>
-<button class="file-btn" onclick="document.getElementById('fileInput').click()">
+<!-- =====================================================
+     LOGIN
+===================================================== -->
+
+<div
+class="login-box"
+id="loginBox"
+>
+
+<input
+type="text"
+id="usuario"
+placeholder="Usuario"
+>
+
+
+<input
+type="password"
+id="password"
+placeholder="Contraseña"
+>
+
+
+<button
+class="login-btn"
+onclick="login()"
+>
+
+Entrar
+
+</button>
+
+
+<!-- =====================================================
+     PANEL ADMIN
+===================================================== -->
+
+<div
+class="admin-panel"
+id="adminPanel"
+>
+
+
+<button
+class="export-btn"
+onclick="exportar()"
+>
+
+Descargar .txt
+
+</button>
+
+
+<input
+type="file"
+id="fileInput"
+accept=".txt,.json"
+onchange="importar(event)"
+hidden
+>
+
+
+<button
+class="file-btn"
+onclick="document.getElementById('fileInput').click()"
+>
+
 Seleccionar archivo
+
 </button>
-<span id="fileName">Ningún archivo seleccionado</span>
-<label>Seleccionar Trimestre</label>
+
+
+<span id="fileName">
+
+Ningún archivo seleccionado
+
+</span>
+
+
+<!-- =====================================================
+     TRIMESTRE
+===================================================== -->
+
+<label>
+
+Seleccionar Trimestre
+
+</label>
+
+
 <div class="trimestre-toggle">
-<button onclick="cambiarTrimestre('Q1')" id="tQ1">Ene - Mar</button>
-<button onclick="cambiarTrimestre('Q2')" id="tQ2">Abr - Jun</button>
-<button onclick="cambiarTrimestre('Q3')" id="tQ3">Jul - Sep</button>
-<button onclick="cambiarTrimestre('Q4')" id="tQ4">Oct - Dic</button>
-</div>
-<canvas id="graficoPastel"></canvas>
-</div>
 
-<div class="historial" id="historial"></div>
+<button
+onclick="cambiarTrimestre('Q1')"
+id="tQ1"
+>
 
-</div>
+Ene - Mar
 
-<button class="theme-toggle" onclick="toggleDark()">
-<span class="icon">🌙</span>
 </button>
+
+
+<button
+onclick="cambiarTrimestre('Q2')"
+id="tQ2"
+>
+
+Abr - Jun
+
+</button>
+
+
+<button
+onclick="cambiarTrimestre('Q3')"
+id="tQ3"
+>
+
+Jul - Sep
+
+</button>
+
+
+<button
+onclick="cambiarTrimestre('Q4')"
+id="tQ4"
+>
+
+Oct - Dic
+
+</button>
+
+</div>
+
+
+<!-- =====================================================
+     RESUMEN
+===================================================== -->
+
+<div
+class="resumen"
+id="resumen"
+>
+
+<div
+class="resumen-titulo"
+id="tituloResumen"
+>
+
+Total General
+
+</div>
+
+
+<div class="resumen-grid">
+
+
+<div class="resumen-box">
+
+<span>Virtual</span>
+
+<strong id="totalVirtual">
+
+0
+
+</strong>
+
+</div>
+
+
+<div class="resumen-box">
+
+<span>Presencial</span>
+
+<strong id="totalPresencial">
+
+0
+
+</strong>
+
+</div>
+
+
+<div class="resumen-box">
+
+<span>Total</span>
+
+<strong id="totalGeneral">
+
+0
+
+</strong>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     GRAFICO
+===================================================== -->
+
+<canvas
+id="graficoPastel"
+>
+
+</canvas>
+
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     HISTORIAL
+===================================================== -->
+
+<div
+class="historial"
+id="historial"
+>
+
+</div>
+
+
+</div>
+
+
+<!-- =====================================================
+     MODO OSCURO
+===================================================== -->
+
+<button
+class="theme-toggle"
+onclick="toggleDark()"
+>
+
+<span class="icon">🌙</span>
+
+</button>
+
 
 <script>
+
+
+/* =========================================================
+   FIREBASE
+========================================================= */
+
 firebase.initializeApp({
-apiKey:"AIzaSyBs3r8RFztg6NxUbkZmaSag2CxfF7phvG8",
-authDomain:"sistema-asistencia-a47c9.firebaseapp.com",
-projectId:"sistema-asistencia-a47c9"
+
+apiKey:
+"AIzaSyBs3r8RFztg6NxUbkZmaSag2CxfF7phvG8",
+
+authDomain:
+"sistema-asistencia-a47c9.firebaseapp.com",
+
+projectId:
+"sistema-asistencia-a47c9"
+
 });
 
-const db=firebase.firestore();
+
+const db =
+firebase.firestore();
+
+
+/* =========================================================
+   VARIABLES
+========================================================= */
 
 let adminActivo=false;
+
 let chart;
+
 let ordenActual="desc";
+
 let trimestreActual="Q1";
 
-/* REFERENCIAS SEGURAS */
-const btnReciente = document.getElementById("btnReciente");
-const btnAntiguo = document.getElementById("btnAntiguo");
 
-const tQ1 = document.getElementById("tQ1");
-const tQ2 = document.getElementById("tQ2");
-const tQ3 = document.getElementById("tQ3");
-const tQ4 = document.getElementById("tQ4");
+/* =========================================================
+   REFERENCIAS
+========================================================= */
 
-const graficoPastel = document.getElementById("graficoPastel");
+const btnReciente =
+document.getElementById("btnReciente");
+
+
+const btnAntiguo =
+document.getElementById("btnAntiguo");
+
+
+const tQ1 =
+document.getElementById("tQ1");
+
+
+const tQ2 =
+document.getElementById("tQ2");
+
+
+const tQ3 =
+document.getElementById("tQ3");
+
+
+const tQ4 =
+document.getElementById("tQ4");
+
+
+const graficoPastel =
+document.getElementById("graficoPastel");
+
+
+const virtualInput =
+document.getElementById("virtual");
+
+
+const presencialInput =
+document.getElementById("presencial");
+
+
+const totalInput =
+document.getElementById("total");
+
+
+const historial =
+document.getElementById("historial");
+
+
+const loginBox =
+document.getElementById("loginBox");
+
+
+const adminPanel =
+document.getElementById("adminPanel");
+
+
+/* =========================================================
+   DATOS TRIMESTRES
+========================================================= */
 
 let datosTrimestre={
-Q1:{virtual:0,presencial:0},
-Q2:{virtual:0,presencial:0},
-Q3:{virtual:0,presencial:0},
-Q4:{virtual:0,presencial:0}
+
+Q1:{
+virtual:0,
+presencial:0
+},
+
+Q2:{
+virtual:0,
+presencial:0
+},
+
+Q3:{
+virtual:0,
+presencial:0
+},
+
+Q4:{
+virtual:0,
+presencial:0
+}
+
 };
 
-/* 🌙 MODO OSCURO */
+
+/* =========================================================
+   CALCULAR TOTAL DEL DÍA
+========================================================= */
+
+function calcularTotal(){
+
+const v =
+parseInt(virtualInput.value) || 0;
+
+const p =
+parseInt(presencialInput.value) || 0;
+
+
+const total =
+v + p;
+
+
+totalInput.value =
+total;
+
+}
+
+
+/* =========================================================
+   ACTUALIZAR AUTOMÁTICAMENTE
+========================================================= */
+
+virtualInput.addEventListener(
+"input",
+calcularTotal
+);
+
+
+presencialInput.addEventListener(
+"input",
+calcularTotal
+);
+
+
+/* =========================================================
+   MODO OSCURO
+========================================================= */
+
 function toggleDark(){
+
 document.body.classList.toggle("dark");
-const icon=document.querySelector(".icon");
 
-if(document.body.classList.contains("dark")){
+
+const icon =
+document.querySelector(".icon");
+
+
+if(
+document.body.classList.contains("dark")
+){
+
 icon.textContent="☀️";
-localStorage.setItem("modo","dark");
+
+localStorage.setItem(
+"modo",
+"dark"
+);
+
 }else{
+
 icon.textContent="🌙";
-localStorage.setItem("modo","light");
-}
+
+localStorage.setItem(
+"modo",
+"light"
+);
+
 }
 
-/* 🎨 COLOR DINÁMICO TRIMESTRE */
+}
+
+
+/* =========================================================
+   COLOR TRIMESTRE
+========================================================= */
+
 function getColorPorTrimestre(t){
+
 switch(t){
-case "Q1": return "#22c55e";
-case "Q2": return "#eab308";
-case "Q3": return "#0ea5e9";
-case "Q4": return "#ef4444";
-default: return "#6366f1";
-}
+
+case "Q1":
+return "#22c55e";
+
+case "Q2":
+return "#eab308";
+
+case "Q3":
+return "#0ea5e9";
+
+case "Q4":
+return "#ef4444";
+
+default:
+return "#6366f1";
+
 }
 
-/* 🔄 ORDEN */
+}
+
+
+/* =========================================================
+   CAMBIAR ORDEN
+========================================================= */
+
 function cambiarOrden(v){
+
 ordenActual=v;
 
-btnReciente.classList.remove("orden-activo");
-btnAntiguo.classList.remove("orden-activo");
+
+btnReciente.classList.remove(
+"orden-activo"
+);
+
+btnAntiguo.classList.remove(
+"orden-activo"
+);
+
 
 if(v==="desc"){
-btnReciente.classList.add("orden-activo");
+
+btnReciente.classList.add(
+"orden-activo"
+);
+
 }else{
-btnAntiguo.classList.add("orden-activo");
+
+btnAntiguo.classList.add(
+"orden-activo"
+);
+
 }
+
 
 mostrar();
+
 }
 
-/* 💾 GUARDAR */
+
+/* =========================================================
+   GUARDAR ASISTENCIA
+========================================================= */
+
 function guardar(){
-const v=parseInt(virtual.value);
-const p=parseInt(presencial.value);
-let fechaSeleccionada=fecha.value||new Date().toISOString().split("T")[0];
 
-if(isNaN(v)||isNaN(p)) return alert("Completa ambos campos");
+const v =
+parseInt(virtualInput.value);
 
-db.collection("asistencia").doc(fechaSeleccionada)
-.set({
-virtual:v,
-presencial:p,
-timestamp:Date.now()
-})
-.then(()=>{
-virtual.value="";
-presencial.value="";
-fecha.value="";
-mostrar();
-});
+
+const p =
+parseInt(presencialInput.value);
+
+
+let fechaSeleccionada =
+document.getElementById("fecha").value
+||
+new Date().toISOString().split("T")[0];
+
+
+if(isNaN(v) || isNaN(p)){
+
+alert(
+"Completa ambos campos"
+);
+
+return;
+
 }
 
-/* 📋 MOSTRAR */
+
+if(v<0 || p<0){
+
+alert(
+"Los valores no pueden ser negativos"
+);
+
+return;
+
+}
+
+
+const total =
+v+p;
+
+
+db.collection("asistencia")
+.doc(fechaSeleccionada)
+.set({
+
+virtual:v,
+
+presencial:p,
+
+total:total,
+
+timestamp:Date.now()
+
+})
+
+
+.then(()=>{
+
+virtualInput.value="";
+
+presencialInput.value="";
+
+totalInput.value="";
+
+document.getElementById("fecha").value="";
+
+
+mostrar();
+
+
+alert(
+"Asistencia guardada correctamente ✅"
+);
+
+})
+
+
+.catch(error=>{
+
+console.error(error);
+
+alert(
+"Error al guardar: "+
+error.message
+);
+
+});
+
+}
+
+
+/* =========================================================
+   MOSTRAR
+========================================================= */
+
 function mostrar(){
 
 historial.innerHTML="";
 
+
+/* Reiniciar trimestres */
+
 datosTrimestre={
-Q1:{virtual:0,presencial:0},
-Q2:{virtual:0,presencial:0},
-Q3:{virtual:0,presencial:0},
-Q4:{virtual:0,presencial:0}
+
+Q1:{
+virtual:0,
+presencial:0
+},
+
+Q2:{
+virtual:0,
+presencial:0
+},
+
+Q3:{
+virtual:0,
+presencial:0
+},
+
+Q4:{
+virtual:0,
+presencial:0
+}
+
 };
 
-db.collection("asistencia").get().then(snapshot=>{
+
+db.collection("asistencia")
+.get()
+
+.then(snapshot=>{
+
 
 let lista=[];
 
+
+/* =====================================================
+   OBTENER DATOS
+===================================================== */
+
 snapshot.forEach(doc=>{
-lista.push({fecha:doc.id,...doc.data()});
+
+const datos =
+doc.data();
+
+
+lista.push({
+
+fecha:doc.id,
+
+...datos
+
 });
 
-/* ORDEN REAL */
+});
+
+
+/* =====================================================
+   ORDEN
+===================================================== */
+
 lista.sort((a,b)=>{
-const fechaA = new Date(a.fecha);
-const fechaB = new Date(b.fecha);
+
+const fechaA =
+new Date(a.fecha);
+
+
+const fechaB =
+new Date(b.fecha);
+
 
 return ordenActual==="asc"
-? fechaA - fechaB
-: fechaB - fechaA;
+
+? fechaA-fechaB
+
+: fechaB-fechaA;
+
 });
+
+
+/* =====================================================
+   TOTALES GENERALES
+===================================================== */
+
+let totalVirtualGeneral=0;
+
+let totalPresencialGeneral=0;
+
+
+/* =====================================================
+   CREAR HISTORIAL
+===================================================== */
 
 lista.forEach(item=>{
 
-const fecha=item.fecha;
-const data=item;
 
-const mes=parseInt(fecha.split("-")[1]);
-const q=mes<=3?"Q1":mes<=6?"Q2":mes<=9?"Q3":"Q4";
+const fecha =
+item.fecha;
 
-datosTrimestre[q].virtual+=Number(data.virtual);
-datosTrimestre[q].presencial+=Number(data.presencial);
 
-historial.innerHTML+=`
+const data =
+item;
+
+
+const virtual =
+Number(data.virtual) || 0;
+
+
+const presencial =
+Number(data.presencial) || 0;
+
+
+const total =
+virtual + presencial;
+
+
+/* =====================================================
+   SUMAR GENERAL
+===================================================== */
+
+totalVirtualGeneral +=
+virtual;
+
+
+totalPresencialGeneral +=
+presencial;
+
+
+/* =====================================================
+   DETERMINAR TRIMESTRE
+===================================================== */
+
+const mes =
+parseInt(
+fecha.split("-")[1]
+);
+
+
+const q =
+mes<=3
+?"Q1"
+:mes<=6
+?"Q2"
+:mes<=9
+?"Q3"
+:"Q4";
+
+
+/* =====================================================
+   SUMAR TRIMESTRE
+===================================================== */
+
+datosTrimestre[q].virtual +=
+virtual;
+
+
+datosTrimestre[q].presencial +=
+presencial;
+
+
+/* =====================================================
+   HISTORIAL
+===================================================== */
+
+historial.innerHTML += `
+
 <div class="historial-item">
-<strong>${fecha}</strong><br>
-Virtual: ${data.virtual} | Presencial: ${data.presencial}
 
-${adminActivo?`
+<strong>${fecha}</strong>
+
 <br>
-<button class="edit-btn" onclick="editar('${fecha}',${data.virtual},${data.presencial})">
-Editar
-</button>
-<button class="danger" onclick="eliminar('${fecha}')">Eliminar</button>
-`:""}
+
+Virtual: ${virtual}
+
+|
+
+Presencial: ${presencial}
+
+<div class="historial-total">
+
+Total: ${total}
 
 </div>
+
+${adminActivo ? `
+
+<br>
+
+<button
+class="edit-btn"
+onclick="editar(
+'${fecha}',
+${virtual},
+${presencial}
+)"
+>
+
+Editar
+
+</button>
+
+
+<button
+class="danger"
+onclick="eliminar('${fecha}')"
+>
+
+Eliminar
+
+</button>
+
+` : ""}
+
+</div>
+
 `;
+
 });
 
-if(adminActivo) actualizarGrafico();
-});
-}
 
-/* ✏️ EDITAR */
-function editar(f,v,p){
-fecha.value=f;
-virtual.value=v;
-presencial.value=p;
-window.scrollTo({top:0,behavior:"smooth"});
-}
+/* =====================================================
+   MOSTRAR TOTAL GENERAL
+===================================================== */
 
-/* 🗑️ ELIMINAR */
-function eliminar(fecha){
-db.collection("asistencia").doc(fecha).delete().then(()=>mostrar());
-}
+actualizarResumenGeneral(
+totalVirtualGeneral,
+totalPresencialGeneral
+);
 
-/* 📊 CAMBIAR TRIMESTRE */
-function cambiarTrimestre(t){
-trimestreActual=t;
 
-/* color dinámico */
+/* =====================================================
+   ACTUALIZAR GRAFICO
+===================================================== */
 
-tQ1.classList.remove("trimestre-activo");
-tQ2.classList.remove("trimestre-activo");
-tQ3.classList.remove("trimestre-activo");
-tQ4.classList.remove("trimestre-activo");
-
-document.getElementById("t"+t).classList.add("trimestre-activo");
+if(adminActivo){
 
 actualizarGrafico();
+
 }
 
-/* 📊 GRÁFICO */
-function actualizarGrafico(){
-const t=trimestreActual;
-const v=datosTrimestre[t].virtual;
-const p=datosTrimestre[t].presencial;
-const total=v+p;
+})
 
-if(chart) chart.destroy();
 
-chart=new Chart(graficoPastel,{
-type:"bar",
-data:{
-labels:["Virtual","Presencial"],
-datasets:[{
-data:[v,p],
-backgroundColor:["#6366f1","#22c55e"],
-borderRadius:14
-}]
-},
-options:{
-plugins:{
-legend:{display:false},
-datalabels:{
-formatter:(value)=> total===0?"0%":((value*100)/total).toFixed(1)+"%"
-}
-}
-},
-plugins:[ChartDataLabels]
-});
-}
+.catch(error=>{
 
-/* 🔐 LOGIN */
-function mostrarLogin(){
-loginBox.style.display="block";
-}
+console.error(
+"Error al cargar:",
+error
+);
 
-function login(){
-const user=usuario.value.trim();
-const pass=password.value.trim();
+alert(
+"Error al cargar las asistencias: "+
+error.message
+);
 
-db.collection("usuarios")
-.where("usuario","==",user)
-.where("password","==",pass)
-.get()
-.then(snapshot=>{
-if(!snapshot.empty){
-adminPanel.style.display="block";
-loginBox.style.display="none";
-adminActivo=true;
-mostrar();
-}else alert("Credenciales incorrectas");
-});
-}
-
-/* 📤 EXPORTAR */
-function exportar(){
-db.collection("asistencia").get().then(snapshot=>{
-const datos={};
-snapshot.forEach(doc=>datos[doc.id]=doc.data());
-
-const blob=new Blob([JSON.stringify(datos,null,2)]);
-const a=document.createElement("a");
-a.href=URL.createObjectURL(blob);
-a.download="asistencia.txt";
-a.click();
-});
-}
-
-/* 📥 IMPORTAR */
-function importar(e){
-const archivo=e.target.files[0];
-if(!archivo) return;
-
-document.getElementById("fileName").textContent=archivo.name;
-
-const reader=new FileReader();
-
-reader.onload=async function(){
-try{
-let contenido=reader.result.trim();
-contenido=contenido.replace(/,\s*}/g,"}");
-const datos=JSON.parse(contenido);
-
-const batch=db.batch();
-
-Object.keys(datos).forEach(fecha=>{
-const registro=datos[fecha];
-
-if(registro && registro.virtual!=null && registro.presencial!=null){
-const ref=db.collection("asistencia").doc(fecha);
-batch.set(ref,{
-virtual:Number(registro.virtual),
-presencial:Number(registro.presencial),
-timestamp:Date.now()
-});
-}
 });
 
-await batch.commit();
-alert("Importación completada correctamente ✅");
-mostrar();
-
-}catch(error){
-alert("Archivo inválido: "+error.message);
 }
+
+
+/* =========================================================
+   RESUMEN GENERAL
+========================================================= */
+
+function actualizarResumenGeneral(
+virtual,
+presencial
+){
+
+const total =
+virtual + presencial;
+
+
+document.getElementById(
+"totalVirtual"
+).textContent =
+virtual;
+
+
+document.getElementById(
+"totalPresencial"
+).textContent =
+presencial;
+
+
+document.getElementById(
+"totalGeneral"
+).textContent =
+total;
+
+
+document.getElementById(
+"tituloResumen"
+).textContent =
+"Total General";
+
+}
+
+
+/* =========================================================
+   RESUMEN DEL TRIMESTRE
+========================================================= */
+
+function actualizarResumenTrimestre(){
+
+const datos =
+datosTrimestre[
+trimestreActual
+];
+
+
+const virtual =
+datos.virtual;
+
+
+const presencial =
+datos.presencial;
+
+
+const total =
+virtual + presencial;
+
+
+document.getElementById(
+"totalVirtual"
+).textContent =
+virtual;
+
+
+document.getElementById(
+"totalPresencial"
+).textContent =
+presencial;
+
+
+document.getElementById(
+"totalGeneral"
+).textContent =
+total;
+
+
+const nombres={
+
+Q1:"Enero - Marzo",
+
+Q2:"Abril - Junio",
+
+Q3:"Julio - Septiembre",
+
+Q4:"Octubre - Diciembre"
+
 };
 
-reader.readAsText(archivo);
+
+document.getElementById(
+"tituloResumen"
+).textContent =
+"Total "+nombres[trimestreActual];
+
 }
 
-/* 🚀 INICIO */
+
+/* =========================================================
+   EDITAR
+========================================================= */
+
+function editar(
+f,
+v,
+p
+){
+
+document.getElementById(
+"fecha"
+).value=f;
+
+
+virtualInput.value=v;
+
+presencialInput.value=p;
+
+
+calcularTotal();
+
+
+window.scrollTo({
+
+top:0,
+
+behavior:"smooth"
+
+});
+
+}
+
+
+/* =========================================================
+   ELIMINAR
+========================================================= */
+
+function eliminar(fecha){
+
+if(
+!confirm(
+"¿Seguro que deseas eliminar esta asistencia?"
+)
+){
+
+return;
+
+}
+
+
+db.collection("asistencia")
+.doc(fecha)
+.delete()
+
+.then(()=>{
+
 mostrar();
 
-/* estado inicial UI */
-btnReciente.classList.add("orden-activo");
-tQ1.classList.add("trimestre-activo");
+alert(
+"Asistencia eliminada correctamente"
+);
 
-/* modo guardado */
-const modoGuardado=localStorage.getItem("modo");
+})
 
-if(modoGuardado==="dark"){
-document.body.classList.add("dark");
-document.querySelector(".icon").textContent="☀️";
-}else{
-document.querySelector(".icon").textContent="🌙";
+.catch(error=>{
+
+alert(
+"Error al eliminar: "+
+error.message
+);
+
+});
+
 }
+
+
+/* =========================================================
+   CAMBIAR TRIMESTRE
+========================================================= */
+
+function cambiarTrimestre(t){
+
+trimestreActual=t;
+
+
+/* Quitar activos */
+
+tQ1.classList.remove(
+"trimestre-activo"
+);
+
+tQ2.classList.remove(
+"trimestre-activo"
+);
+
+tQ3.classList.remove(
+"trimestre-activo"
+);
+
+tQ4.classList.remove(
+"trimestre-activo"
+);
+
+
+/* Activar */
+
+document.getElementById(
+"t"+t
+).classList.add(
+"trimestre-activo"
+);
+
+
+/* Actualizar resumen */
+
+actualizarResumenTrimestre();
+
+
+/* Actualizar gráfico */
+
+actualizarGrafico();
+
+}
+
+
+/* =========================================================
+   GRAFICO
+========================================================= */
+
+function actualizarGrafico(){
+
+const t =
+trimestreActual;
+
+
+const v =
+datosTrimestre[t].virtual;
+
+
+const p =
+datosTrimestre[t].presencial;
+
+
+const total =
+v+p;
+
+
+if(chart){
+
+chart.destroy();
+
+}
+
+
+chart =
+new Chart(
+graficoPastel,
+{
+
+type:"bar",
+
+
+data:{
+
+labels:[
+"Virtual",
+"Presencial"
+],
+
+
+datasets:[{
+
+data:[
+v,
+p
+],
+
+
+backgroundColor:[
+
+"#6366f1",
+
+"#22c55e"
+
+],
+
+
+borderRadius:14
+
+}]
+
+},
+
+
+options:{
+
+plugins:{
+
+legend:{
+display:false
+},
+
+
+datalabels:{
+
+formatter:(value)=>{
+
+return total===0
+
+? "0%"
+
+: (
+(value*100)/total
+).toFixed(1)+"%";
+
+}
+
+}
+
+}
+
+},
+
+
+plugins:[
+ChartDataLabels
+]
+
+});
+
+
+}
+
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+function mostrarLogin(){
+
+loginBox.style.display =
+"block";
+
+}
+
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+function login(){
+
+const user =
+document.getElementById(
+"usuario"
+).value.trim();
+
+
+const pass =
+document.getElementById(
+"password"
+).value.trim();
+
+
+if(!user || !pass){
+
+alert(
+"Escribe el usuario y la contraseña"
+);
+
+return;
+
+}
+
+
+db.collection("usuarios")
+
+.where(
+"usuario",
+"==",
+user
+)
+
+.get()
+
+.then(snapshot=>{
+
+
+if(snapshot.empty){
+
+alert(
+"❌ Usuario no encontrado"
+);
+
+return;
+
+}
+
+
+let encontrado=false;
+
+
+snapshot.forEach(doc=>{
+
+const datos =
+doc.data();
+
+
+if(
+String(datos.password) ===
+pass
+){
+
+encontrado=true;
+
+}
+
+});
+
+
+if(encontrado){
+
+alert(
+"✅ Inicio de sesión correcto"
+);
+
+
+adminPanel.style.display =
+"block";
+
+
+loginBox.style.display =
+"none";
+
+
+adminActivo=true;
+
+
+mostrar();
+
+
+}else{
+
+alert(
+"❌ Contraseña incorrecta"
+);
+
+}
+
+})
+
+
+.catch(error=>{
+
+console.error(
+"ERROR FIREBASE:",
+error
+);
+
+
+alert(
+
+"❌ Error al conectar con Firebase:\n\n"+
+error.code+
+"\n"+
+error.message
+
+);
+
+});
+
+}
+
+
+/* =========================================================
+   EXPORTAR
+========================================================= */
+
+function exportar(){
+
+db.collection("asistencia")
+.get()
+
+.then(snapshot=>{
+
+
+const datos={};
+
+
+snapshot.forEach(doc=>{
+
+const data =
+doc.data();
+
+
+datos[doc.id]={
+
+virtual:
+Number(data.virtual) || 0,
+
+presencial:
+Number(data.presencial) || 0,
+
+total:
+(
+Number(data.virtual) || 0
+)+
+(
+Number(data.presencial) || 0
+)
+
+};
+
+});
+
+
+const blob =
+new Blob(
+
+[
+JSON.stringify(
+datos,
+null,
+2
+)
+],
+
+{
+type:"text/plain"
+}
+
+);
+
+
+const a =
+document.createElement("a");
+
+
+a.href =
+URL.createObjectURL(blob);
+
+
+a.download =
+"asistencia.txt";
+
+
+a.click();
+
+
+URL.revokeObjectURL(
+a.href
+);
+
+});
+
+}
+
+
+/* =========================================================
+   IMPORTAR
+========================================================= */
+
+function importar(e){
+
+const archivo =
+e.target.files[0];
+
+
+if(!archivo)
+return;
+
+
+document.getElementById(
+"fileName"
+).textContent =
+archivo.name;
+
+
+const reader =
+new FileReader();
+
+
+reader.onload =
+async function(){
+
+
+try{
+
+
+let contenido =
+reader.result.trim();
+
+
+contenido =
+contenido.replace(
+/,\s*}/g,
+"}"
+);
+
+
+const datos =
+JSON.parse(contenido);
+
+
+const batch =
+db.batch();
+
+
+Object.keys(datos)
+.forEach(fecha=>{
+
+
+const registro =
+datos[fecha];
+
+
+if(
+
+registro &&
+
+registro.virtual != null &&
+
+registro.presencial != null
+
+){
+
+
+const virtual =
+Number(
+registro.virtual
+);
+
+
+const presencial =
+Number(
+registro.presencial
+);
+
+
+const total =
+virtual + presencial;
+
+
+const ref =
+db.collection(
+"asistencia"
+).doc(fecha);
+
+
+batch.set(
+ref,
+{
+
+virtual:
+virtual,
+
+presencial:
+presencial,
+
+total:
+total,
+
+timestamp:
+Date.now()
+
+}
+
+);
+
+}
+
+});
+
+
+await batch.commit();
+
+
+alert(
+"Importación completada correctamente ✅"
+);
+
+
+mostrar();
+
+
+}catch(error){
+
+alert(
+"Archivo inválido: "+
+error.message
+);
+
+}
+
+};
+
+
+reader.readAsText(
+archivo
+);
+
+}
+
+
+/* =========================================================
+   INICIO
+========================================================= */
+
+mostrar();
+
+
+/* Orden inicial */
+
+btnReciente.classList.add(
+"orden-activo"
+);
+
+
+/* Trimestre inicial */
+
+tQ1.classList.add(
+"trimestre-activo"
+);
+
+
+/* =========================================================
+   MODO GUARDADO
+========================================================= */
+
+const modoGuardado =
+localStorage.getItem(
+"modo"
+);
+
+
+if(
+modoGuardado==="dark"
+){
+
+document.body.classList.add(
+"dark"
+);
+
+
+document.querySelector(
+".icon"
+).textContent="☀️";
+
+
+}else{
+
+document.querySelector(
+".icon"
+).textContent="🌙";
+
+}
+
 </script>
 
+
 </body>
+
 </html>
